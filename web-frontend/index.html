@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Web Camera Controller</title>
+  <link rel="stylesheet" href="/css/master.css">
+  <link rel="stylesheet" href="/css/nouislider.min.css">
+</head>
+
+<body>
+  <div class="main-content">
+    <div id="container-zoom">
+      <!-- Populated with the noUiSlider library -->
+    </div>
+
+    <div class="container-presets-title container-title">
+      <h3 class="title presets-title vertical">
+        Presets
+      </h3>
+    </div>
+    <div class="presets-buttons">
+      <button class="presets-button" data-preset-id="1">1</button>
+      <button class="presets-button" data-preset-id="2">2</button>
+      <button class="presets-button" data-preset-id="3">3</button>
+      <button class="presets-button" data-preset-id="4">4</button>
+      <button class="presets-button" data-preset-id="5">5</button>
+      <button class="presets-button" preset-id="6">6</button>
+      <button class="presets-button" preset-id="7">7</button>
+      <button class="presets-button" preset-id="8">8</button>
+      <button class="presets-button" preset-id="9">9</button>
+      <button class="presets-button" preset-id="10">10</button>
+      <button class="presets-button" preset-id="11">11</button>
+      <button class="presets-button" preset-id="12">12</button>
+      <button class="presets-button" preset-id="13">13</button>
+      <button class="presets-button" preset-id="14">14</button>
+      <button class="presets-button" preset-id="15">15</button>
+      <button class="presets-button" preset-id="16">16</button>
+    </div>
+
+    <div class="container-cameras-title container-title">
+      <h3 class="title cameras-title vertical">
+        Cameras
+      </h3>
+    </div>
+    <div class="cameras-buttons">
+      <input type="radio" class="camera-selector" name="camera-selector" id="camera-selector-1" value="1">
+      <label class="cameras-button" for="camera-selector-1"> 1 </label>
+
+      <input type="radio" class="camera-selector" name="camera-selector" id="camera-selector-2" value="2">
+      <label class="cameras-button" for="camera-selector-2"> 2 </label>
+
+      <input type="radio" class="camera-selector" name="camera-selector" id="camera-selector-3" value="3">
+      <label class="cameras-button" for="camera-selector-3"> 3 </label>
+    </div>
+
+    <div id=container-joystick>
+      <!-- Populated with the nipplejs library -->
+    </div>
+  </div>
+
+  <script src="/js/nipplejs.min.js"></script>
+  <script src="/js/nouislider.min.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/main.js"></script>
+
+</body>
+
+</html>

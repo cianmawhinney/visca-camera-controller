@@ -1,0 +1,122 @@
+/* ======
+= Fonts =
+====== */
+
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Montserrat Regular'), local('Montserrat-Regular'),
+       url('../fonts/montserrat-v12-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('../fonts/montserrat-v12-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+/* montserrat-700 - latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Montserrat Bold'), local('Montserrat-Bold'),
+       url('../fonts/montserrat-v12-latin-700.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('../fonts/montserrat-v12-latin-700.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+/* roboto-regular - latin */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto'), local('Roboto-Regular'),
+       url('../fonts/roboto-v18-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('../fonts/roboto-v18-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+/* roboto-700 - latin */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Roboto Bold'), local('Roboto-Bold'),
+       url('../fonts/roboto-v18-latin-700.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('../fonts/roboto-v18-latin-700.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+.main-content {
+  width: 100%;
+  height: 100%;
+  display: inline-grid;
+  grid-template-rows: repeat(4, 1fr);
+  grid-template-columns: repeat(12, [col-start] 1fr);
+  grid-gap: 0;
+  overflow: hidden;
+}
+
+#container-zoom {
+  grid-area: 1 / 1 / span 4 / span 1;
+  margin: 10px auto;
+}
+
+.container-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.title {
+  transform: rotate(-90deg);
+  font-weight: bold;
+  font-size: 125%;
+  font-family: "Roboto"
+}
+
+.container-presets-title {
+  grid-area: 1 / 2 / span 3 / span 1;
+}
+
+.presets-buttons {
+  grid-area: 1 / 3 / span 3 / span 6;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  align-items: stretch;
+}
+
+.container-cameras-title {
+  grid-area: 4 / 2 / span 1 / span 1;
+  /*background-color: #443F3F;*/
+}
+
+.cameras-buttons {
+  grid-area: 4 / 3 / span 1 / span 6;
+  display: flex;
+  /*background-color: #443F3F;*/
+}
+
+.cameras-buttons .cameras-button {
+  flex-grow: 1;
+  background-color: #443F3F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cameras-buttons .camera-selector {
+  display: none; /* radio buttons are used for their mechanics, not visuals */
+}
+
+.camera-selector:checked + .cameras-button {
+  background-color: blue;
+}
+
+#container-joystick {
+  grid-area: 1 / 9 / span 4 / span 4;
+  position: relative;
+  background-color: #C5CAD2;
+}
