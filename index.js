@@ -7,7 +7,7 @@ const cameraIO = require('./io_handler.js');
 
 cameraIO.connectAllCameras();
 
-app.use(express.static('frontend'))
+app.use(express.static('web-frontend'))
 
 app.ws('/', function(ws, req) {
   ws.on('message', function(msg) {

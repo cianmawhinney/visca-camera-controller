@@ -21,7 +21,7 @@ function connectAllCameras(){
     // what to data is received from a camera
     // in the future there will be a visca handler to interpret this.
     activeSessions[c.id].on("data", function(data) {
-      console.log("Received data from camera #" + c.id + ": " + data);
+      console.log("Received data from camera #" + c.id + ": " + data.toString('hex'));
     });
 
     // print any errors to the screen
