@@ -10,6 +10,9 @@
   "author": "Cian Mawhinney",
   "license": "ISC",
   "dependencies": {
+    "@hapi/joi": "^16.1.7",
+    "eslint": "^6.5.1",
+    "eslint-config-strongloop": "^2.1.0",
     "express": "^4.16.4",
     "express-ws": "^4.0.0",
     "ws": "^6.1.2"
