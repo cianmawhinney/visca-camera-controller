@@ -6,7 +6,7 @@
       "id": 1,
       "friendly_name": "Local development TCP server",
       "visca_address": 1,
-      "host": "10.10.10.20",
+      "host": "localhost",
       "port": 5678,
       "presets": {}
     }
