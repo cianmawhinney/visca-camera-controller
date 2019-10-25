@@ -1,29 +1,75 @@
 'use strict';
 
-const fs = require('fs');
+const convict = require('convict');
 
-// TODO: use config module instead of dealing with the raw file
+convict.addFormats({
 
+  'camera-array': {
+    validate: function(cameras, schema) {
+      if (!Array.isArray(cameras)) {
+        throw new Error('cameras must be an array');
+      }
+      for (let camera of cameras) {
+        convict(schema.camera).load(camera).validate();
+      }
+    },
+  },
 
-/* Eventually, this module should manage reading and writing to the config file,
-and be able to reload it live when the application is running */
+  // TODO: 'preset-array': {}
 
-function getConfiguration(configFile = 'config.json') {
-  return JSON.parse(fs.readFileSync(configFile));
-}
+});
 
-function getCameras() {
-  return getConfiguration().cameras;
-}
+const config = convict({
+  webserver_port: {
+    doc: 'The port the web server will listen on',
+    format: 'port',
+    default: 80,
+    env: 'PORT',
+    arg: 'port',
+  },
+  cameras: {
+    doc: 'An array of cameras to control',
+    format: 'camera-array',
+    default: [],
 
-function getCameraConfig(id) {
-  return getCameras().find(function(camera) {
-    return camera.id === id;
-  });
-}
+    // a template for a camera within the array
+    camera: {
+      id: {
+        doc: 'The id of the camera within the system',
+        format: Number,
+        default: null,
+      },
+      friendly_name: {
+        doc: 'A recognisable name given to the camera',
+        format: String,
+        default: '',
+      },
+      visca_address: {
+        doc: 'The visca address used by the camera',
+        format: 'nat',
+        default: 1,
+      },
+      host: {
+        doc: 'The IP address of the camera',
+        format: String,
+        default: '127.0.0.1',
+      },
+      port: {
+        doc: 'The port of the TCP server on the camera',
+        format: 'port',
+        default: 5678,
+      },
+      presets: {
+        doc: 'An array of the presets stored in this system for the camera',
+        format: Array,
+        default: [],
+        // TODO: determine the structure of the preset objects
+      },
+    },
+  },
+});
 
-module.exports = {
-  getConfiguration,
-  getCameraConfig,
-  getCameras,
-};
+config.loadFile('config.json');
+config.validate({allowed: 'strict'});
+
+module.exports = config;

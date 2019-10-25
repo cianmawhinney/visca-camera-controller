@@ -13,7 +13,7 @@ app.use(express.static('web-frontend'));
 
 // TODO: consistent naming for JSON parameters
 const generalSchema = Joi.object({
-  cameraId: Joi.number().integer().min(1).max(config.getCameras().length),
+  cameraId: Joi.number().integer().min(1).max(config.get('cameras').length),
   action: Joi.object({
     type: Joi.string().valid('move', 'zoom', 'preset'),
     parameters: Joi.object(),

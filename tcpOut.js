@@ -31,7 +31,7 @@ function connectCamera(camera) {
 
 function connectAllCameras() {
   console.log('Begin connecting to cameras...');
-  config.getCameras().forEach(connectCamera);
+  config.get('cameras').forEach(connectCamera);
 }
 
 function sendCommand(cameraID, binaryCommand) {
