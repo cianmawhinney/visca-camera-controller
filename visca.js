@@ -1,7 +1,6 @@
 'use strict';
 
 const util = require('util');
-const config = require('./config.js'); // TODO: Remove config from this file
 
 /*
 The code in this file works toward returning a buffer containing the command
@@ -22,7 +21,7 @@ const ZOOM_MAX_SPEED = 7;
 // TODO: validate input
 
 let genBuffer = {
-  move: function(camera, parameters) {
+  move: function(visca_address, parameters) {
     /*
 
     Pan and Tilt VISCA Reference
@@ -55,8 +54,6 @@ let genBuffer = {
       right: '02',
     };
 
-    let camera_address = config.getCameraConfig(camera).visca_address;
-
     let pan_direction = direction_lookup[parameters.pan];
     let tilt_direction = direction_lookup[parameters.tilt];
     let pan_speed = parameters.pan_speed;
@@ -71,7 +68,7 @@ let genBuffer = {
 
     let command = util.format(
       command_shell,
-      camera_address,
+      visca_address,
       _toHex(pan_speed),
       _toHex(tilt_speed),
       pan_direction,
@@ -80,7 +77,7 @@ let genBuffer = {
     return _createBuffer(command);
   },
 
-  zoom: function(camera, parameters) {
+  zoom: function(visca_address, parameters) {
     /*
 
     Zoom VISCA Reference
@@ -105,14 +102,12 @@ let genBuffer = {
       zoomout: '3',
     };
 
-    let camera_address = config.getCameraConfig(camera).visca_address;
-
     let zoom_direction = direction_lookup[parameters.zoomDirection];
     let zoom_speed = parameters.zoomSpeed;
 
     let command = util.format(
       command_shell,
-      camera_address,
+      visca_address,
       zoom_direction,
       zoom_speed
     );
@@ -120,7 +115,7 @@ let genBuffer = {
     return _createBuffer(command);
   },
 
-  preset: function(camera, parameters) {
+  preset: function(visca_address, parameters) {
     /*
 
     Presets VISCA Reference
@@ -148,14 +143,12 @@ let genBuffer = {
       recall: '2',
     };
 
-    let camera_address = config.getCameraConfig(camera).visca_address;
-
     let preset_function_value = function_lookup[parameters.function];
     let preset_number = parameters.preset_number;
 
     let command = util.format(
       command_shell,
-      camera_address,
+      visca_address,
       _toHex(preset_function_value),
       _toHex(preset_number)
     );

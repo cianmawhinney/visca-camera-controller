@@ -25,15 +25,18 @@ app.ws('/', function(ws, req) {
   ws.on('message', function(msg) {
     const { error, value } = generalSchema.validate(JSON.parse(msg));
     if (error) {
-      ws.send(error);
+      // TODO: Implement a consistent response object for all
+      //       server -> client communication
+      ws.send(JSON.stringify(error));
     } else {
       let actionType = value.action.type;
-      let camera = value.cameraId;
+      let cameraID = value.cameraId;
       let parameters = value.action.parameters;
       try {
-        let command = visca.genBuffer[actionType](camera, parameters);
+        let visca_address = config.getCameraByID(cameraID).visca_address;
+        let command = visca.genBuffer[actionType](visca_address, parameters);
         //  <io-handler thing>.send(command);
-        tcpOut.sendCommand(camera, command);
+        tcpOut.sendCommand(cameraID, command);
       } catch (err) {
         ws.send('An error occurred, see server logs for details, for now');
         console.log(err);

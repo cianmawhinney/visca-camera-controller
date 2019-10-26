@@ -72,4 +72,11 @@ const config = convict({
 config.loadFile('config.json');
 config.validate({allowed: 'strict'});
 
+config.getCameraByID = function(id) {
+  return config.get('cameras').find(function(camera) {
+    return camera.id === id;
+  });
+};
+
+
 module.exports = config;
