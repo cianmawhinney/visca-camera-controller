@@ -1,7 +1,9 @@
 
 # Camera controller
 
-## How this works
+Disclaimer: This project is unfinished and not suitable for a production environment just yet.
+
+## How it works
 This application made up a main backend server, which sets out to take any form of input,
 and output to any camera (currently limited to VISCA cameras)
 
@@ -217,4 +219,5 @@ Used to store the configuration of the server
 | `"pan_position"`  | Signed integer, where each unit represents 1/14 of a degree     | `-2448` - `2448`            |
 | `"tilt_position"` | Signed integer, where each unit represents [1/14 of a degree] ? | Unknown                     |
 | `"zoom_position"` | Signed integer                                                  | Unknown                     |
+
 The values representing the positions need to be checked. I *think* the `pan_position` explanation is right, but the other two I have no idea
