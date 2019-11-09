@@ -25,11 +25,14 @@ for (var i = 0; i < cameraSelectors.length; i++) {
   });
 }
 // TODO: when a camera is selected, update the currently shown presets
+// TODO: when a camera is selected, update the current camera in the backend too
+// TODO: If the camera is changed in the backend then update in the front-end too
 
 
 /* ###############
 # Joystick stuff #
 ############### */
+
 
 var p_last = {};
 joystick.on('move', function(e, data) {
