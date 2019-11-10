@@ -44,6 +44,7 @@ function sendCommand(cameraID, actionType, data = null) {
 }
 // TODO: Prevent error when unavailable camera selected
 // TODO: check vMix tally
+// TODO: Send stop to current camera when new camera selected (if button pressed mid-movement)
 controller.on( '1:press', function() {
   currentCamera = 1;
   console.log('button 1 pressed')
@@ -74,69 +75,74 @@ controller.on( '8:press', function() {
 //  PAN/TILT
 var p_last = {};
 controller.on( 'center:move', function(e, data) {
-  var directionV,directionH,speedV,speedH = 0;
+  var tiltDirection = '';
+  var panDirection='';
+  var speedV = 0;
+  var speedH = 0;
+  var tiltSpeed = 0;
+  var panSpeed = 0;
   // x/y range is 0 to 255 - centre 128
   //console.log('joystick moved ' + e.x + ' ' + e.y)
   //We will ignore movement untill about 10 off centre
 
   // find direction up/down/left/right
-  if (e.x <= MAX_JS_MOVEMENT) {
-    directionV='up';
-  } else {
-    directionV='down';
-  }
+  // TODO: option to reverse in preferences
   if (e.y <= MAX_JS_MOVEMENT) {
-    directionH='left';
+    tiltDirection='up';
   } else {
-    directionH='right';
+    tiltDirection='down';
+  }
+  if (e.x <= MAX_JS_MOVEMENT) {
+    panDirection='left';
+  } else {
+    panDirection='right';
   }
   // normalise x and y so that they are an integer between 0 to visca max speed
   //PAN SPEED
-  if (e.y <= MAX_JS_MOVEMENT){
-    // need to reverse it
-    speedH = (MAX_JS_MOVEMENT- e.y);
-  } else {
-    // subtract the left ragne 0 - 128
-    speedH = (e.y - MAX_JS_MOVEMENT);
-  }
-  if (speedH <= AT_REST_MOVEMENT){
-    speedH=0;
-  } else {
-    speedH = Math.floor((speedH - AT_REST_MOVEMENT)/(MAX_JS_MOVEMENT - AT_REST_MOVEMENT) * PAN_MAX_SPEED);
-  }
-  // TILT SPEED
   if (e.x <= MAX_JS_MOVEMENT){
     // need to reverse it
-    speedV = (MAX_JS_MOVEMENT- e.x);
+    speedH = (MAX_JS_MOVEMENT - e.x);
+  } else {
+    // subtract the left ragne 0 - 128
+    speedH = (e.x - MAX_JS_MOVEMENT);
+  }
+  if (speedH <= AT_REST_MOVEMENT){
+    panSpeed=0;
+  } else {
+    panSpeed = Math.floor(((speedH - AT_REST_MOVEMENT)/(MAX_JS_MOVEMENT - AT_REST_MOVEMENT)) * PAN_MAX_SPEED);
+  }
+  // TILT SPEED
+  if (e.y <= MAX_JS_MOVEMENT){
+    // need to reverse it
+    speedV = (MAX_JS_MOVEMENT - e.y);
   } else {
     // subtract the left range 0 - 128
-    speedV = (e.x - MAX_JS_MOVEMENT);
+    speedV = (e.y - MAX_JS_MOVEMENT);
   }
   if (speedV <= AT_REST_MOVEMENT){
-    speedV=0;
+     tiltSpeed = 0;
   } else {
     // get the speed to be relative the the maximum allowed 
-    speedV = Math.floor((speedV - AT_REST_MOVEMENT)/(MAX_JS_MOVEMENT - AT_REST_MOVEMENT) * TILT_MAX_SPEED);
+    tiltSpeed = Math.floor(((speedV - AT_REST_MOVEMENT)/(MAX_JS_MOVEMENT - AT_REST_MOVEMENT)) * TILT_MAX_SPEED);
   }
 
   // send command
-  if (speedV === 0 && speedH === 0){
+  if (tiltSpeed === 0 && panSpeed === 0){
   // send stop if centred
-  var p = {
-      pan: null,
-      tilt: null,
-      pan_speed: 0,
-      tilt_speed: 0,
+    var p = {
+        pan: null,
+        tilt: null,
+        pan_speed: 0,
+        tilt_speed: 0,
     };
  } else {
     var p = {
-      pan: directionH,
-      tilt: directionV,
-      pan_speed: speedV,
-      tilt_speed: speedH,
-    };
-    
-  }
+      pan: panDirection,
+      tilt: tiltDirection,
+      pan_speed: panSpeed,
+      tilt_speed: tiltSpeed,
+    };  
+  };
    // only send new position if it represents a different value
    if (JSON.stringify(p) !== JSON.stringify(p_last)) {
     //console.log(p);
@@ -147,27 +153,27 @@ controller.on( 'center:move', function(e, data) {
 
 //  ZOOM
 var z_last = {};
-controller.on( 'jaw:move', function(e, data) {
+controller.on( 'jaw:move', function(f, data) {
   // x range is 0 to 255 - centre 128
-  //console.log(e);
+  //console.log(f);
   var zoomDirection = '';
   var zoomSpeed = 0;
   var speedZ = 0;
-  if (e.x + AT_REST_MOVEMENT < JS_AT_REST) {
+  if (f.x + AT_REST_MOVEMENT < JS_AT_REST) {
     zoomDirection = 'zoomout';
-  } else if (e.x - AT_REST_MOVEMENT > JS_AT_REST) {
+  } else if (f.x - AT_REST_MOVEMENT > JS_AT_REST) {
     zoomDirection = 'zoomin';
   } else {
     zoomDirection = 'zoomstop';
   }
   // normalise x so that it is an integer between 0 to visca max speed
   //PAN SPEED
-  if (e.x <= MAX_JS_MOVEMENT){
+  if (f.x <= MAX_JS_MOVEMENT){
     // need to reverse it
-    speedZ = (MAX_JS_MOVEMENT- e.x);
+    speedZ = (MAX_JS_MOVEMENT - f.x);
   } else {
     // subtract the left ragne 0 - 128
-    speedZ = (e.x - MAX_JS_MOVEMENT);
+    speedZ = (f.x - MAX_JS_MOVEMENT);
   }
   if (speedZ <= AT_REST_MOVEMENT){
     zoomSpeed=0;
