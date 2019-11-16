@@ -15,6 +15,7 @@
     "convict": "^5.2.0",
     "express": "^4.16.4",
     "express-ws": "^4.0.0",
+    "node-gamepad": "^0.1.15",
     "node-hid": "^0.7.9",
     "ws": "^6.1.2"
   },
