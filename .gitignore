@@ -81,3 +81,6 @@ typings/
 
 # Application configuration file
 config.json
+
+# VS Code config directory
+.vscode/

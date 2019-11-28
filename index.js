@@ -2,9 +2,11 @@
 
 const web = require('./webIn').app;
 const config = require('./config');
-const tcp = require('./tcpOut'); // temporary
+const tcpOut = require('./tcpOut'); // temporary
+const gamepadControl = require('./gamepadIn');
 
-tcp.connectAllCameras();
+tcpOut.connectAllCameras();
 
-// other input methods should be started from here
+// input methods should be started from here
 web.listen(config.get('webserver_port'));
+gamepadControl.connect();

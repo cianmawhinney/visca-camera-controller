@@ -2,13 +2,29 @@
   "webserver_port": 3000,
 
   "cameras": [
-    {
+   {
       "id": 1,
+      "friendly_name": "PTZ 1",
+      "visca_address": 1,
+      "host": "10.10.10.20",
+      "port": 5678,
+      "presets": {}
+    },
+    {
+      "id": 2,
+      "friendly_name": "PTZ 2",
+      "visca_address": 1,
+      "host": "10.10.10.22",
+      "port": 5678,
+      "presets": {}
+    },
+    {
+      "id": 3,
       "friendly_name": "Local development TCP server",
       "visca_address": 1,
       "host": "localhost",
       "port": 5678,
       "presets": {}
-    }
-  ]
+    }   
+   ]
 }
