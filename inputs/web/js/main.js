@@ -1,4 +1,5 @@
 /* eslint-env browser */
+/* global joystick, slider */
 'use strict';
 
 // create websocket connection to server
@@ -62,12 +63,14 @@ joystick.on('end', function(e, data) {
 });
 
 function parseJoystickMovement(moveData) {
+  /*
   if (!moveData.hasOwnProperty('direction')) {
     return;
   } else {
     var directionH = moveData.direction.x;
     var directionV = moveData.direction.y;
   }
+  */
   // TODO: currently this gets to fast too quickly
   function smoothSpeed(distance) {
     let distanceOffset = 20; // distance of movement before activating
@@ -81,20 +84,20 @@ function parseJoystickMovement(moveData) {
   const PAN_MAX_SPEED = 24;
   const TILT_MAX_SPEED = 20;
 
-  var speedH = Math.abs(Math.round(
+  var speedH = Math.round(
     // joystick has a max distance of 120, visca pan speed has max 24
     smoothSpeed(moveData.distance) * Math.cos(moveData.angle.radian) * PAN_MAX_SPEED
-  ));
-  var speedV = Math.abs(Math.round(
+  );
+  var speedV = Math.round(
     // joystick has a max distance of 120, visca tilt speed has max 20
     smoothSpeed(moveData.distance) * Math.sin(moveData.angle.radian) * TILT_MAX_SPEED
-  ));
+  );
+
+  console.log({speedH, speedV});
 
   return {
-    pan: directionH,
-    tilt: directionV,
-    pan_speed: speedH,
-    tilt_speed: speedV,
+    panSpeed: speedH,
+    tiltSpeed: speedV,
   };
 }
 
@@ -116,6 +119,7 @@ slider.noUiSlider.on('update', function(values) {
 });
 
 function parseSliderMovement(sliderValue) {
+  /*
   var zoomDirection = '';
   if (sliderValue < 0) {
     zoomDirection = 'zoomin';
@@ -124,11 +128,11 @@ function parseSliderMovement(sliderValue) {
   } else {
     zoomDirection = 'zoomstop';
   }
-
-  var zoomSpeed = Math.abs(Math.round(sliderValue));
+  */
+  var zoomSpeed = Math.round(sliderValue);
 
   return {
-    zoomDirection: zoomDirection,
+    // zoomDirection: zoomDirection,
     zoomSpeed: zoomSpeed,
   };
 }

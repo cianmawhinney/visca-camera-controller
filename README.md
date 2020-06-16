@@ -2,6 +2,7 @@
 # Camera controller
 
 Disclaimer: This project is unfinished and not suitable for a production environment just yet.
+Also, don't bother reading below this line, a lot of it has been changed
 
 ## How it works
 This application made up a main backend server, which sets out to take any form of input,

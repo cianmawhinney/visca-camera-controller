@@ -4,23 +4,23 @@
   "description": "A web based camera controller",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "author": "Cian Mawhinney",
   "license": "ISC",
   "dependencies": {
-    "@hapi/joi": "^16.1.7",
-    "colors": "^1.4.0",
-    "convict": "^5.2.0",
+    "@serialport/parser-delimiter": "^9.0.0",
+    "@serialport/stream": "^9.0.0",
+    "convict": "^6.0.0",
+    "convict-format-with-validator": "^6.0.0",
     "express": "^4.16.4",
     "express-ws": "^4.0.0",
-    "node-gamepad": "^0.1.15",
-    "node-hid": "^0.7.9",
-    "ws": "^6.1.2"
+    "joystick": "git+https://github.com/JayBeavers/node-joystick.git",
+    "liquidjs": "^9.12.0",
+    "minimist": "^1.2.5"
   },
   "devDependencies": {
-    "eslint": "^6.6.0",
+    "eslint": "^6.8.0",
     "eslint-config-strongloop": "^2.1.0"
   }
 }
