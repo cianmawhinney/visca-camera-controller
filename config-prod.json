@@ -1,0 +1,68 @@
+{
+  "webserver_port": 80,
+
+  "cameras": [
+   {
+      "id": 1,
+      "friendly_name": "Left Gallery",
+      "visca_address": 1,
+      "connection": {
+        "type": "network",
+        "parameters": {
+          "host": "10.10.10.22",
+          "port": 5678
+        }
+      },
+      "presets": {}
+    },
+    {
+      "id": 2,
+      "friendly_name": "Right Gallery",
+      "visca_address": 2,
+      "connection": {
+        "type": "serial",
+        "parameters": {
+          "serial_port": ""
+        }
+      },
+      "presets": {}
+    },
+    {
+      "id": 3,
+      "friendly_name": "Left Stage",
+      "visca_address": 3,
+      "connection": {
+        "type": "serial",
+        "parameters": {
+          "serial_port": ""
+        }
+      },
+      "presets": {}
+    },
+    {
+      "id": 4,
+      "friendly_name": "Under Organ",
+      "visca_address": 4,
+      "connection": {
+        "type": "serial",
+        "parameters": {
+          "serial_port": ""
+        }
+      },
+      "presets": {}
+    },
+    {
+      "id": 6,
+      "friendly_name": "Under Gallery",
+      "visca_address": 6,
+      "connection": {
+        "type": "network",
+        "parameters": {
+          "host": "10.10.10.20",
+          "port": 5678
+        }
+      },
+      "presets": {}
+    }
+  ]
+}
