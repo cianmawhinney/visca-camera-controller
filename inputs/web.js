@@ -24,6 +24,12 @@ class WebInput {
         let data = JSON.parse(msg);
         let camera = this.cameras.find(({id}) =>
           id.toString() === data.cameraId.toString());
+
+        if (camera === undefined) {
+          ws.send('error: invalid camera requested');
+          return;
+        };
+
         let action = data.action;
         let argArray = [];
 
@@ -40,7 +46,6 @@ class WebInput {
             argArray = [zoomSpeed];
             break;
 
-          // TODO: resolve naming of `onCameraPreset` and `preset`
           case 'preset':
             let presetNumber = action.parameters.presetNumber || 0;
             let presetFunction = action.parameters.function || 'recall';
@@ -56,7 +61,7 @@ class WebInput {
         if (typeof camera[action.type] === 'function') {
           await camera[action.type].apply(camera, argArray)
             .then(() => ws.send('ack'))
-            .catch((err) => console.log('error: ' + err));
+            .catch((err) => console.log(err));
         } else {
           console.log('error: invalid action requested');
         }

@@ -3,14 +3,36 @@
 'use strict';
 
 // create websocket connection to server
+var ws; // will be instantiated in connect method below
 var websocketConnected = false;
-var wsConnection = new WebSocket('ws://' + window.location.host + '/');
 
-wsConnection.onopen = function(event) {
-  websocketConnected = true;
-};
+// setup taken from https://stackoverflow.com/a/23176223
+var wsReconnectTimeout = 250;
 
-// TODO: automatically reconnect on disconnect
+function connect() {
+  ws = new WebSocket('ws://' + window.location.host + '/');
+  ws.onopen = function(event) {
+    console.log('Websocket connected!');
+    websocketConnected = true;
+    wsReconnectTimeout = 250; // reset reconnect timer on connection
+  };
+
+  ws.onclose = function(e) {
+    console.log('Socket closed: ', e.reason);
+    console.log('Reconnect will be attempted in',
+      wsReconnectTimeout / 1000, 'seconds');
+    setTimeout(connect, wsReconnectTimeout += wsReconnectTimeout);
+  };
+
+  ws.onerror = function(err) {
+    console.error('Websocket encountered error: ', err.message);
+    console.log('Will attempt to reconnect...');
+    ws.close();
+  };
+
+}
+
+connect();
 
 
 /* ##########################
@@ -53,10 +75,8 @@ joystick.on('move', function(e, data) {
 
 joystick.on('end', function(e, data) {
   var p = {
-    pan: null,
-    tilt: null,
-    pan_speed: 0,
-    tilt_speed: 0,
+    panSpeed: 0,
+    tiltSpeed: 0,
   };
 
   sendCommand(currentCamera, 'move', p);
@@ -86,14 +106,10 @@ function parseJoystickMovement(moveData) {
 
   var speedH = Math.round(
     // joystick has a max distance of 120, visca pan speed has max 24
-    smoothSpeed(moveData.distance) * Math.cos(moveData.angle.radian) * PAN_MAX_SPEED
-  );
+    smoothSpeed(moveData.distance) * Math.cos(moveData.angle.radian) * PAN_MAX_SPEED);
   var speedV = Math.round(
     // joystick has a max distance of 120, visca tilt speed has max 20
-    smoothSpeed(moveData.distance) * Math.sin(moveData.angle.radian) * TILT_MAX_SPEED
-  );
-
-  console.log({speedH, speedV});
+    smoothSpeed(moveData.distance) * Math.sin(moveData.angle.radian) * TILT_MAX_SPEED);
 
   return {
     panSpeed: speedH,
@@ -182,5 +198,5 @@ function sendCommand(cameraID, actionType, data = null) {
     },
   };
 
-  wsConnection.send(JSON.stringify(payload));
+  ws.send(JSON.stringify(payload));
 }

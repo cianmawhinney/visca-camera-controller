@@ -34,23 +34,23 @@ config.get('cameras').forEach((camera) => {
     connection));
 });
 
-if (config.get('webserver_port') !== 0) {
+if (config.get('webserver_port') !== config.default('webserver_port')) {
   const web = new WebInput(cameras, config.get('webserver_port'));
   web.listen();
   console.log('Web server started');
 }
 
-if (config.get('serial_port')) {
+if (config.get('serial_port') !== config.default('serial_port')) {
   const serial = new SerialInput(cameras, config.get('serial_port'));
   serial.listen();
   console.log('Listening for serial joystick');
 }
 
-if (config.get('joystick_id')) {
+if (config.get('joystick_id') !== config.default('joystick_id')) {
   const joystick = new JoystickInput(cameras, config.get('joystick_id'));
   joystick.listen();
   console.log('Listening for gamepad joystick');
 }
 
-// TODO: make this line actually work
+// FIXME: make this line actually work
 process.on('beforeExit', () => console.log('System exiting...'));
