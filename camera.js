@@ -5,13 +5,6 @@ const util = require('util');
 const assert = require('assert');
 const stream = require('stream');
 
-const PAN_MAX_SPEED = 24;
-const TILT_MAX_SPEED = 20;
-const ZOOM_MAX_SPEED = 7;
-const OCP_MAX_ID = 15; // on camera preset
-const OCP_MIN_ID = 0; // on camera preset
-
-
 class ViscaCamera {
 
   constructor(id, friendlyName, viscaAddress, connection) {
@@ -54,10 +47,12 @@ class ViscaCamera {
     */
 
     panSpeed = Math.round(panSpeed); // ensure panSpeed is an integer
-    panSpeed = helpers.constrain(panSpeed, -PAN_MAX_SPEED, PAN_MAX_SPEED);
+    panSpeed = helpers.constrain(panSpeed,
+      -ViscaCamera.PAN_MAX_SPEED, ViscaCamera.PAN_MAX_SPEED);
 
     tiltSpeed = Math.round(tiltSpeed); // ensure tiltSpeed is an integer
-    tiltSpeed = helpers.constrain(tiltSpeed, -TILT_MAX_SPEED, TILT_MAX_SPEED);
+    tiltSpeed = helpers.constrain(tiltSpeed,
+      -ViscaCamera.TILT_MAX_SPEED, ViscaCamera.TILT_MAX_SPEED);
 
     let panDirection;
     if (panSpeed < 0) {
@@ -114,7 +109,8 @@ class ViscaCamera {
     */
 
     zoomSpeed = Math.round(zoomSpeed); // ensure zoomSpeed is an integer
-    zoomSpeed = helpers.constrain(zoomSpeed, -ZOOM_MAX_SPEED, ZOOM_MAX_SPEED);
+    zoomSpeed = helpers.constrain(zoomSpeed,
+      -ViscaCamera.ZOOM_MAX_SPEED, ViscaCamera.ZOOM_MAX_SPEED);
 
     let zoomDirection;
     if (zoomSpeed > 0) {
@@ -158,8 +154,11 @@ class ViscaCamera {
 
     */
 
-    assert(presetID >= OCP_MIN_ID && presetID <= OCP_MAX_ID,
-      `The preset ID must be between ${OCP_MIN_ID} and ${OCP_MAX_ID}`);
+    let aboveMin = presetID >= ViscaCamera.OCP_MIN_ID;
+    let belowMax = presetID <= ViscaCamera.OCP_MAX_ID;
+    assert(aboveMin && belowMax,
+      `The preset ID must be between ${ViscaCamera.OCP_MIN_ID}
+      and ${ViscaCamera.OCP_MAX_ID}`);
 
     action = action.toLowerCase();
     assert(action === 'set' || action === 'recall' || action === 'clear',
@@ -193,6 +192,16 @@ class ViscaCamera {
     return await this.onCameraPreset(presetID, 'clear');
   }
 
+  async preset(presetID, action) {
+    let aboveMin = presetID >= ViscaCamera.OCP_MIN_ID;
+    let belowMax = presetID <= ViscaCamera.OCP_MAX_ID;
+    if (aboveMin && belowMax) {
+      return await this.onCameraPreset(presetID, action);
+    } else {
+      // TODO: implement system presets
+      // return await this.systemPreset();
+    }
+  }
   async _send(payload) {
     this.connection.write(payload);
     return new Promise((resolve, reject) => {
@@ -261,5 +270,12 @@ class ViscaCamera {
     return errors.find((error) => error.regex.test(message)).meaning;
   }
 }
+
+// constants
+ViscaCamera.PAN_MAX_SPEED = 24;
+ViscaCamera.TILT_MAX_SPEED = 20;
+ViscaCamera.ZOOM_MAX_SPEED = 7;
+ViscaCamera.OCP_MAX_ID = 15; // on camera preset
+ViscaCamera.OCP_MIN_ID = 0; // on camera preset
 
 module.exports = ViscaCamera;
