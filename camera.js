@@ -202,6 +202,60 @@ class ViscaCamera {
       // return await this.systemPreset();
     }
   }
+
+  async menu(action) {
+    /*
+
+    Menu VISCA Reference
+    ====================
+
+    | function | VISCA Command           |
+    | -------- | ----------------------- |
+    | on       | 8x 01 06 06 02 FF       |
+    | off      | 8x 01 06 06 03 FF       |
+    | back     | 8x 01 06 06 10 FF       |
+    | ok       | 8x 01 7E 01 02 00 01 FF |
+
+    Where:
+    * x is the camera visca address (0x0 - 0x7)
+
+    */
+
+    action = action.toLowerCase();
+
+    const actionLookup = {
+      on: '8%s 01 06 06 02 FF',
+      off: '8%s 01 06 06 03 FF',
+      back: '8%s 01 06 06 10 FF',
+      ok: '8%s 01 7E 01 02 00 01 FF',
+    };
+
+    assert(Object.keys(actionLookup).includes(action),
+      'The passed action is not valid');
+
+    let command = util.format(actionLookup[action], this.viscaAddress);
+
+    let payload = helpers.createBufferFromString(command);
+    return await this._send(payload);
+  }
+
+  async menuToggle() {
+    // ask camera whether the menu is showing
+    let queryCommand = util.format('8%s 09 06 06 FF', this.viscaAddress);
+    let queryPayload = helpers.createBufferFromString(queryCommand);
+    let response = await this._send(queryPayload)
+      .catch(() => console.error('Error: failed to get menu status'));
+    // response code should be in 3rd byte
+    if (response[2] === 0x03) {
+      // menu is off, so turn it on
+      return await this.menu('on');
+    } else {
+      // menu is on, so turn it off
+      return await this.menu('off');
+    }
+
+  }
+
   async _send(payload) {
     this.connection.write(payload);
     return new Promise((resolve, reject) => {
