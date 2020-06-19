@@ -256,20 +256,28 @@ class ViscaCamera {
 
   }
 
+  // TODO: commands should be queued if another is being executed
   async _send(payload) {
     this.connection.write(payload);
     return new Promise((resolve, reject) => {
-      // listen for response
-      this.connection.once('data', (response) => {
+      let onResponse = (response) => {
         if (!this.isErrorMessage(response)) {
           resolve(response);
         } else {
           reject(this.interpretErrorMessage(response));
         }
         // remove error event listener to prevent memory leak
-        this.connection.removeListener('error', reject);
-      });
-      this.connection.once('error', reject);
+        this.connection.removeListener('error', onError);
+      };
+
+      let onError = (error) => {
+        reject(error);
+        this.connection.removeListener('data', onResponse);
+      };
+
+      this.connection.once('data', onResponse);
+
+      this.connection.once('error', onError);
     });
   }
 
