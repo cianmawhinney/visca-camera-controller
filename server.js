@@ -7,7 +7,7 @@ const SerialInput = require('./inputs/serial');
 const JoystickInput = require('./inputs/joystick');
 const Camera = require('./camera');
 
-const SerialPort = require('@serialport/stream');
+const SerialPort = require('serialport');
 const Delimiter = require('@serialport/parser-delimiter');
 const net = require('net');
 

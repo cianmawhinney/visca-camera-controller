@@ -1,7 +1,7 @@
 'use strict';
 
 const helpers = require('../helperFunctions');
-const SerialPort = require('@serialport/stream');
+const SerialPort = require('serialport');
 const Delimiter = require('@serialport/parser-delimiter');
 
 
