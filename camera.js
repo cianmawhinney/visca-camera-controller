@@ -145,7 +145,7 @@ class ViscaCamera {
     let command = util.format('8%s 01 04 07 %s%s FF',
       this.viscaAddress,
       zoomDirection,
-      zoomSpeed,
+      Math.abs(zoomSpeed),
     );
 
     let payload = helpers.createBufferFromString(command);

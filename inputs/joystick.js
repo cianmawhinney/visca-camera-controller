@@ -56,12 +56,12 @@ class JoystickInput {
           this.joystickState.pan = event.value;
 
           let normalisedPan = this.joystickState.pan / JoystickInput.AXIS_MAX;
-          let pan = normalisedPan * ViscaCamera.MAX_PAN_SPEED;
+          let pan = normalisedPan * ViscaCamera.PAN_MAX_SPEED;
 
           let normalisedTilt = this.joystickState.tilt / JoystickInput.AXIS_MAX;
-          let tilt = normalisedTilt * ViscaCamera.MAX_TILT_SPEED;
+          let tilt = normalisedTilt * ViscaCamera.TILT_MAX_SPEED;
 
-          await this.currentCamera.move(Math.trunc(pan), Math.trunc(tilt))
+          await this.currentCamera.move(Math.round(pan), Math.round(tilt))
             .catch((error) => console.log('error: ' + error));
           break;
         }
@@ -72,12 +72,12 @@ class JoystickInput {
           this.joystickState.tilt = event.value;
 
           let normalisedPan = this.joystickState.pan / JoystickInput.AXIS_MAX;
-          let pan = normalisedPan * ViscaCamera.MAX_PAN_SPEED;
+          let pan = normalisedPan * ViscaCamera.PAN_MAX_SPEED;
 
           let normalisedTilt = this.joystickState.tilt / JoystickInput.AXIS_MAX;
-          let tilt = normalisedTilt * ViscaCamera.MAX_TILT_SPEED;
+          let tilt = normalisedTilt * ViscaCamera.TILT_MAX_SPEED;
 
-          await this.currentCamera.move(Math.trunc(pan), Math.trunc(tilt))
+          await this.currentCamera.move(Math.round(pan), Math.round(tilt))
             .catch((error) => console.log('error: ' + error));
           break;
         }
@@ -86,9 +86,9 @@ class JoystickInput {
         case 2: {
           // this axis controls zooming
           let normalisedZoomSpeed = event.value / JoystickInput.AXIS_MAX;
-          let zoom = normalisedZoomSpeed * ViscaCamera.MAX_ZOOM_SPEED;
+          let zoom = normalisedZoomSpeed * ViscaCamera.ZOOM_MAX_SPEED;
 
-          await this.currentCamera.zoom(Math.trunc(zoom))
+          await this.currentCamera.zoom(Math.round(zoom))
             .catch((error) => console.log('error: ' + error));
           break;
         }
