@@ -7,6 +7,25 @@ const stream = require('stream');
 
 class ViscaCamera {
 
+  // constants
+  static get PAN_MAX_SPEED() {
+    return 24;
+  };
+  static get TILT_MAX_SPEED() {
+    return 20;
+  }
+  static get ZOOM_MAX_SPEED() {
+    return 7;
+  }
+  static get OCP_MAX_ID() {
+    // on camera preset
+    return 15;
+  }
+  static get OCP_MIN_ID() {
+    // on camera preset
+    return 0;
+  }
+
   constructor(id, friendlyName, viscaAddress, connection) {
     assert(id !== undefined,
       'The system ID for the camera must be passed to the ViscaCamera object');
@@ -332,12 +351,5 @@ class ViscaCamera {
     return errors.find((error) => error.regex.test(message)).meaning;
   }
 }
-
-// constants
-ViscaCamera.PAN_MAX_SPEED = 24;
-ViscaCamera.TILT_MAX_SPEED = 20;
-ViscaCamera.ZOOM_MAX_SPEED = 7;
-ViscaCamera.OCP_MAX_ID = 15; // on camera preset
-ViscaCamera.OCP_MIN_ID = 0; // on camera preset
 
 module.exports = ViscaCamera;

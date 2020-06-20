@@ -13,6 +13,11 @@ but now is not that time
 
 class JoystickInput {
 
+  // constants
+  static get AXIS_MAX() {
+    return 32768; // signed 16 bit integer
+  }
+
   constructor(cameras, joystickID) {
     this.cameras = cameras;
     this.id = joystickID;
@@ -194,8 +199,5 @@ class JoystickInput {
   }
 
 }
-
-// constants
-JoystickInput.AXIS_MAX = 32768; // signed 16 bit integer
 
 module.exports = JoystickInput;
