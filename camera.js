@@ -1,6 +1,7 @@
 'use strict';
 
 const helpers = require('./helperFunctions');
+const RequestQueue = require('./requestQueue');
 const util = require('util');
 const assert = require('assert');
 const stream = require('stream');
@@ -38,6 +39,11 @@ class ViscaCamera {
     assert((connection instanceof stream.Duplex),
       'A connection stream must be passed to the ViscaCamera object');
     this.connection = connection;
+
+    this.queue = new RequestQueue({
+      concurrency: 2,
+      autostart: true,
+    });
   }
 
   async move(panSpeed, tiltSpeed) {
@@ -106,7 +112,7 @@ class ViscaCamera {
     );
 
     let payload = helpers.createBufferFromString(command);
-    return await this._send(payload);
+    return await this.send(payload);
   }
 
   async zoom(zoomSpeed) {
@@ -149,7 +155,7 @@ class ViscaCamera {
     );
 
     let payload = helpers.createBufferFromString(command);
-    return await this._send(payload);
+    return await this.send(payload);
   }
 
   async onCameraPreset(presetID, action) {
@@ -196,7 +202,7 @@ class ViscaCamera {
     );
 
     let payload = helpers.createBufferFromString(command);
-    return await this._send(payload);
+    return await this.send(payload);
   }
 
   async setOnCameraPreset(presetID) {
@@ -255,14 +261,15 @@ class ViscaCamera {
     let command = util.format(actionLookup[action], this.viscaAddress);
 
     let payload = helpers.createBufferFromString(command);
-    return await this._send(payload);
+    return await this.send(payload);
   }
 
+  // TODO: review this & remove call to console
   async menuToggle() {
     // ask camera whether the menu is showing
     let queryCommand = util.format('8%s 09 06 06 FF', this.viscaAddress);
     let queryPayload = helpers.createBufferFromString(queryCommand);
-    let response = await this._send(queryPayload)
+    let response = await this.send(queryPayload)
       .catch(() => console.error('Error: failed to get menu status'));
     // response code should be in 3rd byte
     if (response[2] === 0x03) {
@@ -275,33 +282,59 @@ class ViscaCamera {
 
   }
 
-  // TODO: commands should be queued if another is being executed
+  async send(payload) {
+    return await this.queue.addJob(() => this._send(payload));
+  }
+
   async _send(payload) {
     this.connection.write(payload);
-    return new Promise((resolve, reject) => {
-      let onResponse = (response) => {
+
+    // three outcomes of the response: data, error, timeout
+    // these items need to cleared up, no matter the outcome
+    // so when an outcome is reached, the items from the other two are cleared
+    let onResponse;
+    let onConnectionError;
+    let timeoutId;
+
+    const waitForResponse = new Promise((resolve, reject) => {
+      onResponse = (response) => {
+        // prevent memory leaks by removing unneeded listeners
+        this.connection.removeListener('error', onConnectionError);
+        clearTimeout(timeoutId);
+
         if (!this.isErrorMessage(response)) {
           resolve(response);
         } else {
           reject(this.interpretErrorMessage(response));
         }
-        // remove error event listener to prevent memory leak
-        this.connection.removeListener('error', onError);
       };
 
-      let onError = (error) => {
-        reject(error);
+      onConnectionError = (error) => {
+        // prevent memory leaks by removing unneeded listeners
         this.connection.removeListener('data', onResponse);
+        clearTimeout(timeoutId);
+
+        reject(error);
       };
 
       this.connection.once('data', onResponse);
-
-      this.connection.once('error', onError);
+      this.connection.once('error', onConnectionError);
     });
+
+    const timeout = new Promise((resolve, reject) => {
+      timeoutId = setTimeout(() => {
+        this.connection.removeListener('data', onResponse);
+        this.connection.removeListener('error', onConnectionError);
+        reject(new Error(`Request to camera id ${this.id} timed out`));
+      }, 100); // 100ms
+    });
+
+    return Promise.race([waitForResponse, timeout]);
   }
 
   isReplyFromCamera(buffer) {
     let message = buffer.toString('hex');
+    // each byte is now represented by two hex characters
     // should start with visca address + 8, and end with ff
     let responseFromCamera = /^[9a-f].*[ff]$/g;
     return responseFromCamera.test(message);
@@ -309,6 +342,7 @@ class ViscaCamera {
 
   isErrorMessage(buffer) {
     let message = buffer.toString('hex');
+    // each byte is now represented by two hex characters
     // only error messages will have a 6 in the 3rd character position
     let errorMessageTest = /^.{2}[6].{5}$/g;
     return (this.isReplyFromCamera(buffer) && errorMessageTest.test(message));

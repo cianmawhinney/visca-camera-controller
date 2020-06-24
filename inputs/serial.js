@@ -34,7 +34,7 @@ class SerialInput {
       // 4 bits of the first byte
       let viscaAddress = data[0] & 0x0F;
       let camera = this.cameras.find((c) => c.viscaAddress === viscaAddress);
-      camera._send(data)
+      camera.send(data)
         .then((response) => this.port.write(response))
         .catch((err) => console.log('error ' + err));
     });
