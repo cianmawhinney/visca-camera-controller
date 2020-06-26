@@ -2,7 +2,24 @@
 # Camera controller
 
 Disclaimer: This project is unfinished and not suitable for a production environment just yet.
-Also, don't bother reading below this line, a lot of it has been changed
+
+## Roadmap to stability
+
+- [ ] Implementation of all known Visca commands
+- [ ] Testing with all cameras available
+- [ ] Update README
+- [ ] Documentation
+- [ ] Docker
+- [ ] The *Input classes shouldn't feel stupid to use
+- [ ] Settings API
+- [ ] On system presets
+- [ ] Generalised joystick support
+- [ ] Slick web interface
+
+
+**Don't bother reading below this line, a lot of it has been changed and needs updating**
+
+---
 
 ## How it works
 This application made up a main backend server, which sets out to take any form of input,
@@ -12,7 +29,8 @@ It includes a web server as a form of input, which communicates with the client 
 
 
 - [Camera controller](#camera-controller)
-  - [How this works](#how-this-works)
+  - [Roadmap to stability](#roadmap-to-stability)
+  - [How it works](#how-it-works)
 - [Reference](#reference)
   - [Action object](#action-object)
     - [`move` parameters](#move-parameters)
