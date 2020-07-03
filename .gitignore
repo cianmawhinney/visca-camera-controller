@@ -79,8 +79,8 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
-# Application configuration file
-config.json
+# Application configuration files
+config-*.json
 
 # VS Code config directory
 .vscode/
