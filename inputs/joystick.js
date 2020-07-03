@@ -126,7 +126,8 @@ class JoystickInput {
           case 0: {
             // toggles the menu on and off
             if (this.currentCamera === undefined) return;
-            await this.currentCamera.menuToggle();
+            await this.currentCamera.menuToggle()
+              .catch((error) => console.log(error));
             break;
           }
 
@@ -134,7 +135,8 @@ class JoystickInput {
           case 1: {
             // sends 'ok' in menu
             if (this.currentCamera === undefined) return;
-            await this.currentCamera.menu('ok');
+            await this.currentCamera.menu('ok')
+              .catch((error) => console.log(error));
             break;
           }
 
