@@ -35,8 +35,9 @@ class JoystickInput {
   }
 
   listen() {
-    // suggested values of 3500, 350 for deadzone and sensitivity
-    const joystick = new Joystick(this.id, 3500, 350);
+    const deadzone = 3500;
+    const sensitivity = 100;
+    const joystick = new Joystick(this.id, deadzone, sensitivity);
 
     joystick.on('axis', async event => {
       /*
@@ -53,43 +54,48 @@ class JoystickInput {
         // main stick horizontal
         case 0: {
           // this axis controls panning
-          this.joystickState.pan = event.value;
 
-          let normalisedPan = this.joystickState.pan / JoystickInput.AXIS_MAX;
-          let pan = normalisedPan * ViscaCamera.PAN_MAX_SPEED;
+          let normalisedPan = event.value / JoystickInput.AXIS_MAX;
+          let pan = Math.round(normalisedPan * ViscaCamera.PAN_MAX_SPEED);
 
-          let normalisedTilt = this.joystickState.tilt / JoystickInput.AXIS_MAX;
-          let tilt = normalisedTilt * ViscaCamera.TILT_MAX_SPEED;
+          if (pan !== this.state.pan) {
+            this.state.pan = pan;
+            await this.currentCamera.move(this.state.pan, this.state.tilt)
+              .catch((error) => console.log('error: ' + error));
+          }
 
-          await this.currentCamera.move(Math.round(pan), Math.round(tilt))
-            .catch((error) => console.log('error: ' + error));
           break;
         }
 
         // main stick vertical
         case 1: {
           // this axis controls tilting
-          this.joystickState.tilt = event.value;
 
-          let normalisedPan = this.joystickState.pan / JoystickInput.AXIS_MAX;
-          let pan = normalisedPan * ViscaCamera.PAN_MAX_SPEED;
+          let normalisedTilt = event.value / JoystickInput.AXIS_MAX;
+          let tilt = Math.round(normalisedTilt * ViscaCamera.TILT_MAX_SPEED);
 
-          let normalisedTilt = this.joystickState.tilt / JoystickInput.AXIS_MAX;
-          let tilt = normalisedTilt * ViscaCamera.TILT_MAX_SPEED;
+          if (tilt !== this.state.tilt) {
+            this.state.tilt = tilt;
+            await this.currentCamera.move(this.state.pan, this.state.tilt)
+              .catch((error) => console.log('error: ' + error));
+          }
 
-          await this.currentCamera.move(Math.round(pan), Math.round(tilt))
-            .catch((error) => console.log('error: ' + error));
           break;
         }
 
         // main stick rotation
         case 2: {
           // this axis controls zooming
-          let normalisedZoomSpeed = event.value / JoystickInput.AXIS_MAX;
-          let zoom = normalisedZoomSpeed * ViscaCamera.ZOOM_MAX_SPEED;
 
-          await this.currentCamera.zoom(Math.round(zoom))
-            .catch((error) => console.log('error: ' + error));
+          let normalisedZoom = event.value / JoystickInput.AXIS_MAX;
+          let zoom = Math.round(normalisedZoom * ViscaCamera.ZOOM_MAX_SPEED);
+
+          if (zoom !== this.state.zoom) {
+            this.state.zoom = zoom;
+            await this.currentCamera.zoom(this.state.zoom)
+              .catch((error) => console.log('error: ' + error));
+          }
+
           break;
         }
 
