@@ -8,25 +8,48 @@ const stream = require('stream');
 
 class ViscaCamera {
 
-  // constants
+  /**
+   * @constant {number} PAN_MAX_SPEED Maximum visca pan speed
+   */
   static get PAN_MAX_SPEED() {
     return 24;
   };
+
+  /**
+   * @constant {number} TILT_MAX_SPEED Maximum visca tilt speed
+   */
   static get TILT_MAX_SPEED() {
     return 20;
   }
+
+  /**
+   * @constant {number} ZOOM_MAX_SPEED Maximum visca zoom speed
+   */
   static get ZOOM_MAX_SPEED() {
     return 7;
   }
+
+  /**
+   * @constant {number} OCP_MAX_ID On camera preset maximum ID
+   */
   static get OCP_MAX_ID() {
-    // on camera preset
     return 15;
   }
+
+  /**
+   * @constant {number} OCP_MIN_ID On camera preset minimum ID
+   */
   static get OCP_MIN_ID() {
-    // on camera preset
     return 0;
   }
 
+  /**
+   * @constructor
+   * @param {number} id must be an integer
+   * @param {string} friendlyName must be a string
+   * @param {number} viscaAddress must be an integer between 1 and 7
+   * @param {object} connection must be of type stream.Duplex
+   */
   constructor(id, friendlyName, viscaAddress, connection) {
     assert(id !== undefined,
       'The system ID for the camera must be passed to the ViscaCamera object');
@@ -46,6 +69,11 @@ class ViscaCamera {
     });
   }
 
+  /**
+   * Pans and/or tilts the camera
+   * @param {number} panSpeed must be an integer between +/- 24
+   * @param {number} tiltSpeed must be an integer between +/- 20
+   */
   async move(panSpeed, tiltSpeed) {
     /*
 
@@ -115,6 +143,10 @@ class ViscaCamera {
     return await this.send(payload);
   }
 
+  /**
+   * Zooms the camera in or out
+   * @param {number} zoomSpeed must be an integer between +/- 7
+   */
   async zoom(zoomSpeed) {
     /*
 
@@ -158,6 +190,11 @@ class ViscaCamera {
     return await this.send(payload);
   }
 
+  /**
+   * Performs an action relating to the specified on camera preset
+   * @param {number} presetID must be an integer between 0 and 15
+   * @param {PresetActions} action Operation to be carried out
+   */
   async onCameraPreset(presetID, action) {
     /*
 
@@ -205,18 +242,42 @@ class ViscaCamera {
     return await this.send(payload);
   }
 
+  /**
+   * Sets the specified on camera preset
+   * @param {number} presetID must be an integer between 0 and 15
+   */
   async setOnCameraPreset(presetID) {
     return await this.onCameraPreset(presetID, 'set');
   }
 
+  /**
+   * Recalls the specified on camera preset
+   * @param {number} presetID must be an integer between 0 and 15
+   */
   async recallOnCameraPreset(presetID) {
     return await this.onCameraPreset(presetID, 'recall');
   }
 
+  /**
+   * Clears the specified on camera preset
+   * @param {number} presetID must be an integer between 0 and 15
+   */
   async clearOnCameraPreset(presetID) {
     return await this.onCameraPreset(presetID, 'clear');
   }
 
+  /**
+   * @typedef {('set' | 'recall' | 'clear')} PresetActions Valid preset actions
+   */
+
+  /**
+   * Performs an action relating to a preset position.
+   * Extends the functionality of {@link onCameraPreset} by moving the camera
+   * directly to stored positions to act as presets
+   * @param {number} presetID must be an integer between 0 and 15
+   * @param {PresetActions} action Operation to be carried out to the preset
+   * @todo Implement function and stored presets
+   */
   async preset(presetID, action) {
     let aboveMin = presetID >= ViscaCamera.OCP_MIN_ID;
     let belowMax = presetID <= ViscaCamera.OCP_MAX_ID;
@@ -228,6 +289,14 @@ class ViscaCamera {
     }
   }
 
+  /**
+   * @typedef {('on' | 'off' | 'back' | 'ok')} MenuActions Valid menu actions
+   */
+
+  /**
+   * Performs an action relating to the navigation of the OSD menu
+   * @param {MenuActions} action Operation to be carried out to the menu
+   */
   async menu(action) {
     /*
 
@@ -264,7 +333,9 @@ class ViscaCamera {
     return await this.send(payload);
   }
 
-  // TODO: review this & remove call to console
+  /**
+   * Toggles the OSD menu
+   */
   async menuToggle() {
     // ask camera whether the menu is showing
     let queryCommand = util.format('8%s 09 06 06 FF', this.viscaAddress);
@@ -282,10 +353,19 @@ class ViscaCamera {
 
   }
 
+  /**
+   * Properly schedules and sends a command to the camera
+   * @param {Buffer} payload Command to send to the camera
+   */
   async send(payload) {
     return await this.queue.addJob(() => this._send(payload));
   }
 
+  /**
+   * Internal method to send commands to the camera
+   * @param {Buffer} payload binary payload to be sent to the camera
+   * @private
+   */
   async _send(payload) {
     this.connection.write(payload);
 
@@ -332,7 +412,12 @@ class ViscaCamera {
     return Promise.race([waitForResponse, timeout]);
   }
 
-  isReplyFromCamera(buffer) {
+  /**
+   * Returns true if buffer is a visca reply from a camera
+   * @param {Buffer} buffer Buffer to test
+   * @static
+   */
+  static isReplyFromCamera(buffer) {
     let message = buffer.toString('hex');
     // each byte is now represented by two hex characters
     // should start with visca address + 8, and end with ff
@@ -340,7 +425,12 @@ class ViscaCamera {
     return responseFromCamera.test(message);
   }
 
-  isErrorMessage(buffer) {
+  /**
+   * Returns true if buffer is a visca error message from a camera
+   * @param {Buffer} buffer Visca reply from camera
+   * @static
+   */
+  static isErrorMessage(buffer) {
     let message = buffer.toString('hex');
     // each byte is now represented by two hex characters
     // only error messages will have a 6 in the 3rd character position
@@ -348,7 +438,12 @@ class ViscaCamera {
     return (this.isReplyFromCamera(buffer) && errorMessageTest.test(message));
   }
 
-  interpretErrorMessage(buffer) {
+  /**
+   * Returns the meaning of a visca error message
+   * @param {Buffer} buffer Visca reply from camera
+   * @static
+   */
+  static interpretErrorMessage(buffer) {
     let message = buffer.toString('hex');
 
     let errors = [
@@ -378,7 +473,7 @@ class ViscaCamera {
       },
       {
         meaning: 'Unknown error message',
-        regex: /^.*$/g,
+        regex: /^.*$/g, // fallback, will match anything
       },
     ];
 
