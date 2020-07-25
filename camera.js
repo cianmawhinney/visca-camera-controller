@@ -63,10 +63,7 @@ class ViscaCamera {
       'A connection stream must be passed to the ViscaCamera object');
     this.connection = connection;
 
-    this.queue = new RequestQueue({
-      concurrency: 2,
-      autostart: true,
-    });
+    this.queue = new RequestQueue();
   }
 
   /**
@@ -140,7 +137,7 @@ class ViscaCamera {
     );
 
     let payload = helpers.createBufferFromString(command);
-    return await this.send(payload);
+    return await this.send(payload, 'move');
   }
 
   /**
@@ -187,7 +184,7 @@ class ViscaCamera {
     );
 
     let payload = helpers.createBufferFromString(command);
-    return await this.send(payload);
+    return await this.send(payload, 'zoom');
   }
 
   /**
@@ -239,7 +236,7 @@ class ViscaCamera {
     );
 
     let payload = helpers.createBufferFromString(command);
-    return await this.send(payload);
+    return await this.send(payload, 'onCameraPreset');
   }
 
   /**
@@ -340,8 +337,13 @@ class ViscaCamera {
     // ask camera whether the menu is showing
     let queryCommand = util.format('8%s 09 06 06 FF', this.viscaAddress);
     let queryPayload = helpers.createBufferFromString(queryCommand);
-    let response = await this.send(queryPayload)
-      .catch(() => console.error('Error: failed to get menu status'));
+    // TODO: review and test try..catch block
+    let response;
+    try {
+      response = await this.send(queryPayload);
+    } catch (error) {
+      return Promise.reject('Error: failed to get menu status');
+    }
     // response code should be in 3rd byte
     if (response[2] === 0x03) {
       // menu is off, so turn it on
@@ -356,9 +358,13 @@ class ViscaCamera {
   /**
    * Properly schedules and sends a command to the camera
    * @param {Buffer} payload Command to send to the camera
+   * @param {string} commandCategory Identifier of what type of command is to be
+   * sent
    */
-  async send(payload) {
-    return await this.queue.addJob(() => this._send(payload));
+  async send(payload, commandCategory) {
+    let job = () => this._send(payload);
+    job.commandCategory = commandCategory;
+    return await this.queue.addJob(job);
   }
 
   /**
@@ -382,10 +388,12 @@ class ViscaCamera {
         this.connection.removeListener('error', onConnectionError);
         clearTimeout(timeoutId);
 
-        if (!this.isErrorMessage(response)) {
-          resolve(response);
+        if (!ViscaCamera.isReplyFromCamera(response)) {
+          reject(new Error('Invalid reply from camera'));
+        } else if (ViscaCamera.isErrorMessage(response)) {
+          reject(ViscaCamera.interpretErrorMessage(response));
         } else {
-          reject(this.interpretErrorMessage(response));
+          resolve(response);
         }
       };
 
