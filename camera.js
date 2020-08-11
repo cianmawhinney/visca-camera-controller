@@ -334,25 +334,37 @@ class ViscaCamera {
    * Toggles the OSD menu
    */
   async menuToggle() {
-    // ask camera whether the menu is showing
-    let queryCommand = util.format('8%s 09 06 06 FF', this.viscaAddress);
-    let queryPayload = helpers.createBufferFromString(queryCommand);
-    // TODO: review and test try..catch block
-    let response;
+    let isMenuShowing;
     try {
-      response = await this.send(queryPayload);
+      isMenuShowing = await this.isMenuShowing();
     } catch (error) {
-      return Promise.reject('Error: failed to get menu status');
+      // rethrow to have error handled by input method
+      throw error;
     }
-    // response code should be in 3rd byte
-    if (response[2] === 0x03) {
+    if (!isMenuShowing) {
       // menu is off, so turn it on
       return await this.menu('on');
     } else {
       // menu is on, so turn it off
       return await this.menu('off');
     }
+  }
 
+  /**
+   * Queries the camera for whether the OSD menu is showing
+   * @returns {boolean}
+   */
+  async isMenuShowing() {
+    let command = util.format('8%s 09 06 06 FF', this.viscaAddress);
+    let payload = helpers.createBufferFromString(command);
+    let response;
+    try {
+      response = await this.send(payload);
+    } catch (error) {
+      return Promise.reject('Error: failed to get menu status');
+    }
+    // response code should be in 3rd byte
+    return (response[2] === 0x03);
   }
 
   /**
