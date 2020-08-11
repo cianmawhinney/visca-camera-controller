@@ -23,19 +23,21 @@ class JoystickInput {
     this.id = joystickID;
 
     // keep track of the currently selected camera
+    /** @type {ViscaCamera} */
     this.currentCamera;
 
     // pan and tilt must be sent to the camera together, so keep track of them
     // the toggle slider state for the buttons must also be stored
-    this.joystickState = {
+    this.state = {
       pan: 0,
       tilt: 0,
+      zoom: 0,
       buttonToggle: '',
     };
   }
 
   listen() {
-    const deadzone = 3500;
+    const deadzone = 1000;
     const sensitivity = 100;
     const joystick = new Joystick(this.id, deadzone, sensitivity);
 
@@ -56,6 +58,7 @@ class JoystickInput {
           // this axis controls panning
 
           let normalisedPan = event.value / JoystickInput.AXIS_MAX;
+          normalisedPan = normalisedPan ** 3; // start panning slower
           let pan = Math.round(normalisedPan * ViscaCamera.PAN_MAX_SPEED);
 
           if (pan !== this.state.pan) {
@@ -72,6 +75,8 @@ class JoystickInput {
           // this axis controls tilting
 
           let normalisedTilt = event.value / JoystickInput.AXIS_MAX;
+          normalisedTilt = normalisedTilt ** 3; // start tilting slower
+          normalisedTilt = -normalisedTilt; // reverse direction
           let tilt = Math.round(normalisedTilt * ViscaCamera.TILT_MAX_SPEED);
 
           if (tilt !== this.state.tilt) {
@@ -88,6 +93,7 @@ class JoystickInput {
           // this axis controls zooming
 
           let normalisedZoom = event.value / JoystickInput.AXIS_MAX;
+          normalisedZoom = normalisedZoom ** 3; // start zooming slower
           let zoom = Math.round(normalisedZoom * ViscaCamera.ZOOM_MAX_SPEED);
 
           if (zoom !== this.state.zoom) {
@@ -102,20 +108,43 @@ class JoystickInput {
         // front slider
         case 3: {
           // this axis chooses whether the buttons activate a camera or a preset
+
           if (JoystickInput.AXIS_MAX)
-            this.joystickState.buttonToggle = 'camera';
+            this.state.buttonToggle = 'camera';
           if (-JoystickInput.AXIS_MAX)
-            this.joystickState.buttonToggle = 'preset';
+            this.state.buttonToggle = 'preset';
+
           break;
         }
 
         // 'nipple' joystick horizontal
         case 4: {
+          // this axis acts as ok and back buttons for the OSD menu
+
+          if (this.currentCamera.isMenuShowing()) {
+            if (event.value === JoystickInput.AXIS_MAX) {
+              await this.currentCamera.menu('ok');
+            } else if (event.value === -JoystickInput.AXIS_MAX) {
+              await this.currentCamera.menu('back');
+            }
+          }
+
           break;
         }
 
         // 'nipple' joystick vertical
         case 5: {
+          // this axis acts as up and down buttons for the OSD menu
+
+          if (this.currentCamera.isMenuShowing()) {
+            if (event.value === JoystickInput.AXIS_MAX) {
+              // move up in menu by
+              await this.currentCamera.move(0, 1);
+            } else if (event.value === -JoystickInput.AXIS_MAX) {
+              await this.currentCamera.menu('back');
+            }
+          }
+
           break;
         }
       }
