@@ -123,9 +123,11 @@ class JoystickInput {
 
           if (this.currentCamera.isMenuShowing()) {
             if (event.value === JoystickInput.AXIS_MAX) {
-              await this.currentCamera.menu('ok');
+              await this.currentCamera.menu('ok')
+                .catch((error) => console.log(error));
             } else if (event.value === -JoystickInput.AXIS_MAX) {
-              await this.currentCamera.menu('back');
+              await this.currentCamera.menu('back')
+                .catch((error) => console.log(error));
             }
           }
 
@@ -139,9 +141,11 @@ class JoystickInput {
           if (this.currentCamera.isMenuShowing()) {
             if (event.value === JoystickInput.AXIS_MAX) {
               // move up in menu by
-              await this.currentCamera.move(0, 1);
+              await this.currentCamera.move(0, 1)
+                .catch((error) => console.log(error));
             } else if (event.value === -JoystickInput.AXIS_MAX) {
-              await this.currentCamera.menu('back');
+              await this.currentCamera.menu('back')
+                .catch((error) => console.log(error));
             }
           }
 
