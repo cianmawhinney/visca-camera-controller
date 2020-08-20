@@ -36,7 +36,7 @@ class SerialInput {
       let camera = this.cameras.find((c) => c.viscaAddress === viscaAddress);
       camera.send(data)
         .then((response) => this.port.write(response))
-        .catch((err) => console.log('error ' + err));
+        .catch((err) => console.log(err.toString()));
     });
   }
 

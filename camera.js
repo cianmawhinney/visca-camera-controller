@@ -412,7 +412,7 @@ class ViscaCamera {
     try {
       response = await this.send(payload);
     } catch (error) {
-      return Promise.reject('Error: failed to get menu status');
+      throw new Error('Failed to get menu status');
     }
     // response code should be in 3rd byte
     return (response[2] === 0x03);

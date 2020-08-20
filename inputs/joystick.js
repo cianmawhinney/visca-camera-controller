@@ -64,7 +64,7 @@ class JoystickInput {
           if (pan !== this.state.pan) {
             this.state.pan = pan;
             await this.currentCamera.move(this.state.pan, this.state.tilt)
-              .catch((error) => console.log('error: ' + error));
+              .catch((error) => console.log(error.toString()));
           }
 
           break;
@@ -82,7 +82,7 @@ class JoystickInput {
           if (tilt !== this.state.tilt) {
             this.state.tilt = tilt;
             await this.currentCamera.move(this.state.pan, this.state.tilt)
-              .catch((error) => console.log('error: ' + error));
+              .catch((error) => console.log(error.toString()));
           }
 
           break;
@@ -99,7 +99,7 @@ class JoystickInput {
           if (zoom !== this.state.zoom) {
             this.state.zoom = zoom;
             await this.currentCamera.zoom(this.state.zoom)
-              .catch((error) => console.log('error: ' + error));
+              .catch((error) => console.log(error.toString()));
           }
 
           break;
@@ -121,14 +121,18 @@ class JoystickInput {
         case 4: {
           // this axis acts as ok and back buttons for the OSD menu
 
-          if (this.currentCamera.isMenuShowing()) {
-            if (event.value === JoystickInput.AXIS_MAX) {
-              await this.currentCamera.menu('ok')
-                .catch((error) => console.log(error));
-            } else if (event.value === -JoystickInput.AXIS_MAX) {
-              await this.currentCamera.menu('back')
-                .catch((error) => console.log(error));
+          try {
+            if (await this.currentCamera.isMenuShowing()) {
+              if (event.value === JoystickInput.AXIS_MAX) {
+                await this.currentCamera.menu('ok')
+                  .catch((error) => console.log(error.toString()));
+              } else if (event.value === -JoystickInput.AXIS_MAX) {
+                await this.currentCamera.menu('back')
+                  .catch((error) => console.log(error.toString()));
+              }
             }
+          } catch (error) {
+            console.log(error.toString());
           }
 
           break;
@@ -138,15 +142,20 @@ class JoystickInput {
         case 5: {
           // this axis acts as up and down buttons for the OSD menu
 
-          if (this.currentCamera.isMenuShowing()) {
-            if (event.value === JoystickInput.AXIS_MAX) {
-              // move up in menu by
-              await this.currentCamera.move(0, 1)
-                .catch((error) => console.log(error));
-            } else if (event.value === -JoystickInput.AXIS_MAX) {
-              await this.currentCamera.menu('back')
-                .catch((error) => console.log(error));
+          try {
+            if (await this.currentCamera.isMenuShowing()) {
+              if (event.value === JoystickInput.AXIS_MAX) {
+                // move up in menu by
+                await this.currentCamera.move(0, 1)
+                  .catch((error) => console.log(error.toString()));
+              } else if (event.value === -JoystickInput.AXIS_MAX) {
+                // move down in menu by
+                await this.currentCamera.move(0, -1)
+                  .catch((error) => console.log(error.toString()));
+              }
             }
+          } catch (error) {
+            console.log(error.toString());
           }
 
           break;
@@ -166,7 +175,7 @@ class JoystickInput {
             // toggles the menu on and off
             if (this.currentCamera === undefined) return;
             await this.currentCamera.menuToggle()
-              .catch((error) => console.log(error));
+              .catch((error) => console.log(error.toString()));
             break;
           }
 
@@ -175,7 +184,7 @@ class JoystickInput {
             // sends 'ok' in menu
             if (this.currentCamera === undefined) return;
             await this.currentCamera.menu('ok')
-              .catch((error) => console.log(error));
+              .catch((error) => console.log(error.toString()));
             break;
           }
 
