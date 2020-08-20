@@ -5,6 +5,7 @@ const RequestQueue = require('./requestQueue');
 const util = require('util');
 const assert = require('assert');
 const stream = require('stream');
+const net = require('net');
 
 class ViscaCamera {
 
@@ -45,25 +46,75 @@ class ViscaCamera {
 
   /**
    * @constructor
-   * @param {number} id must be an integer
-   * @param {string} friendlyName must be a string
-   * @param {number} viscaAddress must be an integer between 1 and 7
-   * @param {object} connection must be of type stream.Duplex
+   * @param {object} options
+   * @param {number} options.viscaAddress VISCA address of camera
+   * @param {number} [options.id] Unique identifier for this camera
+   * @param {string} [options.friendlyName] A memorable name for the camera
+   * @param {string} [options.host] IP address for camera
+   * @param {number} [options.port] TCP port for camera
+   * @param {stream.Duplex} [options.connection] A pre-made connection to use
+   * instead of supplying a host and port combination
    */
-  constructor(id, friendlyName, viscaAddress, connection) {
-    assert(id !== undefined,
-      'The system ID for the camera must be passed to the ViscaCamera object');
-    this.id = id;
+  constructor(options) {
+    assert(options.viscaAddress,
+      'You must specify a VISCA address');
 
-    this.friendlyName = (friendlyName !== undefined) ? friendlyName : this.id;
+    assert((options.host && options.host) || options.connection,
+      'You must specify a host and port, or pass in a connection.');
 
-    this.viscaAddress = (viscaAddress !== undefined) ? viscaAddress : 1;
+    this.viscaAddress = options.viscaAddress;
 
-    assert((connection instanceof stream.Duplex),
-      'A connection stream must be passed to the ViscaCamera object');
-    this.connection = connection;
+    this.id = options.id;
+
+    this.friendlyName = options.friendlyName;
+
+    if (!options.connection) {
+      this.connection = new net.Socket();
+
+      const connect = () => {
+        try {
+          console.log('Connecting to camera: ' + this);
+          this.connection.connect({
+            host: options.host,
+            port: options.port,
+          });
+        } catch (e) {
+          console.error(e.toString());
+        }
+      };
+
+      connect();
+
+      this.connection.on('close', () => {
+        console.log('Connection reset, reconnecting...');
+        connect();
+      });
+
+      this.connection.on('timeout', () => {
+        console.log('Connection timed out, reconnecting...');
+        connect();
+      });
+
+    } else {
+      assert(options.connection instanceof stream.Duplex,
+        'options.connection must be of type stream.Duplex');
+      this.connection = options.connection();
+    }
 
     this.queue = new RequestQueue();
+  }
+
+  /**
+   * Returns a string representation of this current camera
+   */
+  toString() {
+    let identifier;
+    if (this.friendlyName) {
+      identifier = `"${this.friendlyName}"`;
+    } else {
+      identifier = `VISCA address=${this.viscaAddress}`;
+    }
+    return `[ViscaCamera ${identifier}]`;
   }
 
   /**

@@ -1,37 +1,24 @@
 'use strict';
 
-const helpers = require('./helperFunctions');
 const config = require('./config');
 const WebInput = require('./inputs/web');
 const SerialInput = require('./inputs/serial');
 const JoystickInput = require('./inputs/joystick');
-const Camera = require('./camera');
-
-const SerialPort = require('serialport');
-const Delimiter = require('@serialport/parser-delimiter');
-const net = require('net');
+const ViscaCamera = require('./camera');
 
 console.log('System starting');
 
 let cameras = [];
 // connect to cameras
 config.get('cameras').forEach((camera) => {
-  let connection;
-  if (camera.connection.type === 'serial') {
-    const port = new SerialPort(camera.connection.parameters.serial_port);
-    const viscaDelimiter = helpers.createBufferFromString('ff');
-    connection = port.pipe(new Delimiter({delimiter: viscaDelimiter}));
-  } else if (camera.connection.type === 'network') {
-    connection = net.createConnection(camera.connection.parameters);
-  } else {
-    throw new Error('A valid connection type must be' +
-      'specified for camera ID: ' + camera.id);
-  }
-  cameras.push(new Camera(
-    camera.id,
-    camera.friendly_name,
-    camera.visca_address,
-    connection));
+  const options = {
+    viscaAddress: camera.visca_address,
+    id: camera.id,
+    friendlyName: camera.friendlyName,
+    host: camera.connection.parameters.host,
+    port: camera.connection.parameters.port,
+  };
+  cameras.push(new ViscaCamera(options));
 });
 
 if (config.get('webserver_port') !== config.default('webserver_port')) {
