@@ -31,6 +31,20 @@ class ViscaCamera {
   }
 
   /**
+   * @constant {number} ZOOM_MAX_POSITION Furthest zoom position of camera
+   */
+  static get ZOOM_MAX_POSITION() {
+    return 16384;
+  }
+
+  /**
+   * @constant {number} ZOOM_MIN_POSITION Widest zoom position of camera
+   */
+  static get ZOOM_MIN_POSITION() {
+    return 0;
+  }
+
+  /**
    * @constant {number} OCP_MAX_ID On camera preset maximum ID
    */
   static get OCP_MAX_ID() {
@@ -41,6 +55,20 @@ class ViscaCamera {
    * @constant {number} OCP_MIN_ID On camera preset minimum ID
    */
   static get OCP_MIN_ID() {
+    return 0;
+  }
+
+  /**
+   * @constant {number} IRIS_MAX_POSITION Widest iris position of camera
+   */
+  static get IRIS_MAX_POSITION() {
+    return 17;
+  }
+
+  /**
+   * @constant {number} IRIS_MIN_POSITION Narrowest iris position of camera
+   */
+  static get IRIS_MIN_POSITION() {
     return 0;
   }
 
@@ -117,18 +145,13 @@ class ViscaCamera {
     return `[ViscaCamera ${identifier}]`;
   }
 
-  /**
-   * Pans and/or tilts the camera
-   * @param {number} panSpeed must be an integer between +/- 24
-   * @param {number} tiltSpeed must be an integer between +/- 20
-   */
-  async move(panSpeed, tiltSpeed) {
-    /*
+
+  /*
 
     Pan and Tilt VISCA Reference
     ============================
 
-    | Direction | VISCA Command              |
+    | Direction | VISCA Control Command      |
     | --------- | -------------------------- |
     | Up        | 8x 01 06 01 VV WW 03 01 FF |
     | Down      | 8x 01 06 01 VV WW 03 02 FF |
@@ -147,6 +170,12 @@ class ViscaCamera {
 
     */
 
+  /**
+   * Pans and/or tilts the camera
+   * @param {number} panSpeed must be an integer between +/- 24
+   * @param {number} tiltSpeed must be an integer between +/- 20
+   */
+  async move(panSpeed, tiltSpeed) {
     panSpeed = Math.round(panSpeed); // ensure panSpeed is an integer
     panSpeed = helpers.constrain(panSpeed,
       -ViscaCamera.PAN_MAX_SPEED, ViscaCamera.PAN_MAX_SPEED);
@@ -191,28 +220,40 @@ class ViscaCamera {
     return await this.send(payload, 'move');
   }
 
+
+  /*
+
+    Zoom VISCA Reference
+    ====================
+
+    | Direction       | VISCA Control Command      |
+    | --------------- | -------------------------- |
+    | Stop            | 8x 01 04 07 00 FF          |
+    | Tele (Zoom in)  | 8x 01 04 07 2p FF          |
+    | Wide (Zoom out) | 8x 01 04 07 3p FF          |
+    | Direct          | 8x 01 04 47 0p 0q 0r 0s FF |
+
+    Where:
+    * x is the camera visca address (0x0 - 0x7)
+    * p is the zoom speed (0x0 - 0x7)
+    * pqrs is the zoom position (0x0000 - 0x4000)
+
+    | Inquiry       | VISCA Inquiry Command | Reply Packet         | Notes |
+    | ------------- | --------------------- | -------------------- | ----- |
+    | Zoom Position | 8x 09 04 47 FF        | y0 50 0p 0q 0r 0s FF |       |
+
+    Where:
+    * x is the camera visca address (0x0 - 0x7)
+    * y is the camera visca address + 8 (0x9 - 0xF)
+    * pqrs is the zoom position (0x0000 - 0x4000)
+
+    */
+
   /**
    * Zooms the camera in or out
    * @param {number} zoomSpeed must be an integer between +/- 7
    */
   async zoom(zoomSpeed) {
-    /*
-
-    Zoom VISCA Reference
-    ====================
-
-    | Direction       | VISCA Command     |
-    | --------------- | ----------------- |
-    | Stop            | 8x 01 04 07 00 FF |
-    | Tele (Zoom in)  | 8x 01 04 07 2p FF |
-    | Wide (Zoom out) | 8x 01 04 07 3p FF |
-
-    Where:
-    * x is the camera visca address (0x0 - 0x7)
-    * p is the zoom speed (0x0 - 0x7)
-
-    */
-
     zoomSpeed = Math.round(zoomSpeed); // ensure zoomSpeed is an integer
     zoomSpeed = helpers.constrain(zoomSpeed,
       -ViscaCamera.ZOOM_MAX_SPEED, ViscaCamera.ZOOM_MAX_SPEED);
@@ -239,12 +280,162 @@ class ViscaCamera {
   }
 
   /**
-   * Performs an action relating to the specified on camera preset
-   * @param {number} presetID must be an integer between 0 and 15
-   * @param {PresetActions} action Operation to be carried out
+   * Zooms directly to the specified position
+   * @param {number} zoomPosition An integer between 0 (wide) and 16384 (tele)
    */
-  async onCameraPreset(presetID, action) {
-    /*
+  async setZoomPosition(zoomPosition) {
+    let aboveMin = zoomPosition >= ViscaCamera.IRIS_MIN_POSITION;
+    let belowMax = zoomPosition <= ViscaCamera.IRIS_MAX_POSITION;
+    assert(aboveMin && belowMax,
+      `The position must be between ${ViscaCamera.ZOOM_MIN_POSITION}
+      and ${ViscaCamera.ZOOM_MAX_POSITION}`);
+
+    let hexPosition = helpers.toHex(zoomPosition);
+    let command = util.format('8%s 01 04 47 0p 0q 0r 0s FF',
+      this.viscaAddress,
+      hexPosition[0],
+      hexPosition[1],
+      hexPosition[2],
+      hexPosition[3],
+    );
+
+    let payload = helpers.createBufferFromString(command);
+    return await this.send(payload);
+  }
+
+  /**
+   * Returns an arbitrary number from 0 (wide) to 16384 (tele) describing how
+   * zoomed in the camera is
+   */
+  async getZoomPosition() {
+    let command = util.format('8%s 09 04 47 FF',
+      this.viscaAddress,
+    );
+
+    let payload = helpers.toHex(command);
+    try {
+      // return packet: y0 50 0p 0q 0r 0s FF
+      let response = await this.send(payload);
+
+      // extract padded value from return packet
+      let strValue = response.toString('hex').substring(4, 12);
+      return helpers.parseValueFromPaddedHexString(strValue);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+
+  /*
+
+    Iris VISCA Reference
+    ====================
+
+    | Function | VISCA Control Command      |
+    | -------- | -------------------------- |
+    | reset    | 8x 01 04 0B 00 FF          |
+    | up       | 8x 01 04 0B 02 FF          |
+    | down     | 8x 01 04 0B 03 FF          |
+    | direct   | 8x 01 04 4B 00 00 0p 0q FF |
+
+    Where:
+    * x is the camera visca address (0x0 - 0x7)
+    * p,q is the iris position (0x00 - 0x11)
+
+
+    | Inquiry       | VISCA Inquiry Command | Reply Packet         | Notes |
+    | ------------- | --------------------- | -------------------- | ----- |
+    | Iris Position | 8x 09 04 4B FF        | y0 50 00 00 0p 0q FF |       |
+
+    Where:
+    * x is the camera visca address (0x0 - 0x7)
+    * y is the camera visca address + 8 (0x9 - 0xF)
+    * pq is the iris position (0x00 - 0x11)
+
+  */
+
+  /**
+   * Widens the iris position of the lens
+   */
+  async widenIris() {
+    let command = util.format('8%s 01 04 0B 02 FF',
+      this.viscaAddress,
+    );
+
+    let payload = helpers.createBufferFromString(command);
+    return await this.send(payload);
+  }
+
+  /**
+   * Narrows the iris position of the lens
+   */
+  async narrowIris() {
+    let command = util.format('8%s 01 04 0B 03 FF',
+      this.viscaAddress,
+    );
+
+    let payload = helpers.createBufferFromString(command);
+    return await this.send(payload);
+  }
+
+  /**
+   * Resets the iris position of the lens to the default position
+   */
+  async resetIrisPosition() {
+    let command = util.format('8%s 01 04 0B 00 FF',
+      this.viscaAddress,
+    );
+
+    let payload = helpers.createBufferFromString(command);
+    return await this.send(payload);
+  }
+
+  /**
+   * Sets the iris position to the specified position
+   * @param {number} position An integer between 0 and 17
+   */
+  async setIrisPosition(position) {
+    let aboveMin = position >= ViscaCamera.IRIS_MIN_POSITION;
+    let belowMax = position <= ViscaCamera.IRIS_MAX_POSITION;
+    assert(aboveMin && belowMax,
+      `The position must be between ${ViscaCamera.IRIS_MIN_POSITION}
+      and ${ViscaCamera.IRIS_MAX_POSITION}`);
+
+    let hexPosition = helpers.toHex(position);
+    let command = util.format('8%s 01 04 4B 00 00 0%s 0%s FF',
+      this.viscaAddress,
+      hexPosition[0],
+      hexPosition[1],
+    );
+
+    let payload = helpers.createBufferFromString(command);
+    return await this.send(payload);
+  }
+
+  /**
+   * Returns an arbitrary number from 0 (iris closed) to 17 (iris wide open)
+   * corresponding to the iris position
+   */
+  async getIrisPosition() {
+    let command = util.format('8%s 09 04 4B FF',
+      this.viscaAddress,
+    );
+
+    let payload = helpers.toHex(command);
+    try {
+      // return packet: y0 50 00 00 0p 0q FF
+      let response = await this.send(payload);
+
+      // extract padded value from return packet
+      let strValue = response.toString('hex').substring(8, 12);
+      return helpers.parseValueFromPaddedHexString(strValue);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+
+  /*
 
     Presets VISCA Reference
     =======================
@@ -264,6 +455,16 @@ class ViscaCamera {
 
     */
 
+  /**
+   * @typedef {('set' | 'recall' | 'clear')} PresetActions Valid preset actions
+   */
+
+  /**
+   * Performs an action relating to the specified on camera preset
+   * @param {number} presetID must be an integer between 0 and 15
+   * @param {PresetActions} action Operation to be carried out
+   */
+  async onCameraPreset(presetID, action) {
     let aboveMin = presetID >= ViscaCamera.OCP_MIN_ID;
     let belowMax = presetID <= ViscaCamera.OCP_MAX_ID;
     assert(aboveMin && belowMax,
@@ -315,10 +516,6 @@ class ViscaCamera {
   }
 
   /**
-   * @typedef {('set' | 'recall' | 'clear')} PresetActions Valid preset actions
-   */
-
-  /**
    * Performs an action relating to a preset position.
    * Extends the functionality of {@link onCameraPreset} by moving the camera
    * directly to stored positions to act as presets
@@ -337,16 +534,8 @@ class ViscaCamera {
     }
   }
 
-  /**
-   * @typedef {('on' | 'off' | 'back' | 'ok')} MenuActions Valid menu actions
-   */
 
-  /**
-   * Performs an action relating to the navigation of the OSD menu
-   * @param {MenuActions} action Operation to be carried out to the menu
-   */
-  async menu(action) {
-    /*
+  /*
 
     Menu VISCA Reference
     ====================
@@ -363,6 +552,15 @@ class ViscaCamera {
 
     */
 
+  /**
+   * @typedef {('on' | 'off' | 'back' | 'ok')} MenuActions Valid menu actions
+   */
+
+  /**
+   * Performs an action relating to the navigation of the OSD menu
+   * @param {MenuActions} action Operation to be carried out to the menu
+   */
+  async menu(action) {
     action = action.toLowerCase();
 
     const actionLookup = {
@@ -417,6 +615,7 @@ class ViscaCamera {
     // response code should be in 3rd byte
     return (response[2] === 0x03);
   }
+
 
   /**
    * Properly schedules and sends a command to the camera
