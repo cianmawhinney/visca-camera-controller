@@ -123,6 +123,11 @@ class ViscaCamera {
         connect();
       });
 
+      this.connection.on('error', (error) => {
+        console.log('Error on connection:', error.toString());
+        connect();
+      });
+
     } else {
       assert(options.connection instanceof stream.Duplex,
         'options.connection must be of type stream.Duplex');
