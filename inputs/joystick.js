@@ -58,7 +58,7 @@ class JoystickInput {
           // this axis controls panning
 
           let normalisedPan = event.value / JoystickInput.AXIS_MAX;
-          normalisedPan = normalisedPan ** 3; // start panning slower
+          normalisedPan = normalisedPan / 3; // start panning slower
           let pan = Math.round(normalisedPan * ViscaCamera.PAN_MAX_SPEED);
 
           if (pan !== this.state.pan) {
@@ -75,7 +75,7 @@ class JoystickInput {
           // this axis controls tilting
 
           let normalisedTilt = event.value / JoystickInput.AXIS_MAX;
-          normalisedTilt = normalisedTilt ** 3; // start tilting slower
+          normalisedTilt = normalisedTilt / 3; // start tilting slower
           normalisedTilt = -normalisedTilt; // reverse direction
           let tilt = Math.round(normalisedTilt * ViscaCamera.TILT_MAX_SPEED);
 
@@ -183,18 +183,32 @@ class JoystickInput {
           case 1: {
             // sends 'ok' in menu
             if (this.currentCamera === undefined) return;
-            await this.currentCamera.menu('ok')
-              .catch((error) => console.log(error.toString()));
+            try {
+              if (await this.currentCamera.isMenuShowing()) {
+                await this.currentCamera.menu('ok')
+                  .catch((error) => console.log(error.toString()));
+              }
+            } catch (error) {
+              console.log(error.toString());
+            }
             break;
           }
 
           // top left button
           case 2: {
+            // narrows the iris
+            if (this.currentCamera === undefined) return;
+            await this.currentCamera.narrowIris()
+              .catch((error) => console.log(error.toString()));
             break;
           }
 
           // top right button
           case 3: {
+            // widens the iris
+            if (this.currentCamera === undefined) return;
+            await this.currentCamera.widenIris()
+              .catch((error) => console.log(error.toString()));
             break;
           }
 
