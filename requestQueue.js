@@ -29,13 +29,19 @@ const Queue = require('queue');
 // executed, the second command no longer matters, and so the next command
 // to be sent to the camera should be to zoom at speed 3.
 
+
 class RequestQueue {
-  constructor() {
-    const queueOptions = {
-      concurrency: 2,
-      autostart: true,
-    };
-    this.q = new Queue(queueOptions);
+  /**
+   * @constructor
+   * @param {object} options For full options, see https://git.io/JUOUH
+   * @param {number} options.concurrency Number of commands a camera can work on
+   */
+  constructor(options) {
+    options = options || {};
+    options.concurrency = options.concurrency || 2;
+    options.autostart = true;
+
+    this.q = new Queue(options);
     this.jobResolveRejectMap = new Map();
 
     this.q.on('success', this.onJobComplete.bind(this));
@@ -73,12 +79,24 @@ class RequestQueue {
     });
   }
 
+  /**
+   * Called when a job is finished, and resolves the promise wrapping that job
+   * @private
+   * @param {*} result The return value from the job
+   * @param {function} job The job that was has completed
+   */
   onJobComplete(result, job) {
     const { resolve } = this.jobResolveRejectMap.get(job);
     this.jobResolveRejectMap.delete(job);
     resolve(result);
   }
 
+  /**
+   * Called when a job fails, and rejects the promise wrapping that job
+   * @private
+   * @param {*} error The error from the job
+   * @param {*} job The job that has failed
+   */
   onJobFailed(error, job) {
     const { reject } = this.jobResolveRejectMap.get(job);
     this.jobResolveRejectMap.delete(job);
