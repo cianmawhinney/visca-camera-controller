@@ -6,9 +6,16 @@ services:
     ports:
       # production port
       - 80:3000
+    volumes:
+      # configuration directory
+      - config:/usr/src/app/config
+      
     devices:
       # mount entire dev folder to allow any usb devices/joysticks/serial
       # devices to be hotplugged.
       # I'm pretty certain this is insecure, so you can try just passing
       # individual devices, though I'm not sure if hotplugging works this way
       - /dev:/dev
+
+volumes:
+  config:
