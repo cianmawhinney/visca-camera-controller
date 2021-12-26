@@ -42,5 +42,5 @@
 
 	// install development dependencies and launch nodemon in development window
 	"postCreateCommand": "npm install --save-dev",
-	"postAttachCommand": "npx nodemon server.js"
+	"postAttachCommand": "npx nodemon src/server.js"
 }
