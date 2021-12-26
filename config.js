@@ -102,7 +102,7 @@ const minimistOptions = {
     config: 'c',
   },
   default: {
-    config: '/config/config.json',
+    config: './config/config.json',
   },
 };
 
