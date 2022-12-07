@@ -12,7 +12,7 @@
     "@serialport/parser-delimiter": "^9.0.0",
     "convict": "^6.2.3",
     "convict-format-with-validator": "^6.0.0",
-    "express": "^4.16.4",
+    "express": "^4.18.2",
     "express-ws": "^4.0.0",
     "joystick": "git+https://github.com/JayBeavers/node-joystick.git",
     "liquidjs": "^9.12.0",
