@@ -5,5 +5,8 @@
     },
     "env": {
         "es6": true
-    }
+    },
+
+    // TODO: Remove once rewrite of web interface is done
+    "ignorePatterns": "src/inputs/web"
 }
