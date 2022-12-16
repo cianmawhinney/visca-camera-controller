@@ -4,7 +4,8 @@
   "description": "A web based camera controller",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node src/server.js",
+    "lint": "eslint ."
   },
   "author": "Cian Mawhinney",
   "license": "ISC",

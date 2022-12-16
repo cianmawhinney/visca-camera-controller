@@ -38,6 +38,3 @@ if (config.get('joystick_id') !== config.default('joystick_id')) {
   joystick.listen();
   console.log('Listening for gamepad joystick');
 }
-
-// FIXME: make this line actually work
-process.on('beforeExit', () => console.log('System exiting...'));
