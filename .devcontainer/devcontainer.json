@@ -1,14 +1,12 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/docker-existing-docker-compose
-// If you want to run as a non-root user in the container, see .devcontainer/docker-compose.yml.
 {
-	"name": "Existing Docker Compose (Extend)",
+	"name": "Node",
 
-	// Update the 'dockerComposeFile' list if you have more compose files or use different names.
-	// The .devcontainer/docker-compose.yml file contains any overrides you need/want to make.
+	// Docker compose file stack - later files override properties of earlier files.
 	"dockerComposeFile": [
-		"../docker-compose.yml",
-		"docker-compose.yml"
+		"../docker-compose.yml", // base
+		"docker-compose.yml" // override
 	],
 
 	// The 'service' property is the name of the service for the container that VS Code should
@@ -18,29 +16,14 @@
 	// The optional 'workspaceFolder' property is the path VS Code should open by default when
 	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
 	"workspaceFolder": "/workspace",
-
-	// Set *default* container specific settings.json values on container create.
-	"settings": {},
-
+	
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"dbaeumer.vscode-eslint",
 		"eamodio.gitlens"
 	],
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Uncomment the next line if you want start specific services in your Docker Compose config.
-	// "runServices": [],
-
-	// Uncomment the next line if you want to keep your containers running after VS Code shuts down.
-	// "shutdownAction": "none",
-
-	// Uncomment to connect as a non-root user if you've added one. See https://aka.ms/vscode-remote/containers/non-root.
-	// "remoteUser": "vscode"
-
 	// install development dependencies and launch nodemon in development window
 	"postCreateCommand": "npm install --save-dev",
-	"postAttachCommand": "npx nodemon src/server.js"
+	"postAttachCommand": "npm run start-dev"
 }
