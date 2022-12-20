@@ -1,61 +1,47 @@
-
-# Camera controller
+# VISCA Camera Controller
 
 Disclaimer: This project is unfinished and not suitable for a production environment just yet.
 
-## Roadmap to stability
-
-- [ ] Implementation of all known Visca commands
-  - [ ] PanTiltDrive
-    - [x] set
-    - [ ] get
-  - [x] Zoom
-    - [x] set
-    - [x] get
-  - [x] Presets
-    - [x] get
-    - [x] set
-  - [ ] Focus
-    - [ ] set
-    - [ ] get
-  - [ ] ZoomFocus
-    - [ ] set
-    - [ ] get
-  - [ ] WhiteBalance
-    - [ ] set
-    - [ ] get
-  - [ ] AutoExposure
-    - [ ] set
-    - [ ] get
-  - [ ] ShutterSpeed
-    - [ ] set
-    - [ ] get
-  - [x] Iris
-    - [x] set
-    - [x] get
-  - [ ] Gain
-    - [ ] set
-    - [ ] get
-  - [ ] Brightness
-    - [ ] set
-    - [ ] get
-  - [ ] ExposureCompensation
-    - [ ] set
-    - [ ] get
-  - [x] Menu
-    - [x] set
-    - [x] get
-- [ ] Testing with all cameras available
-- [ ] Update README
-- [ ] Documentation
-- [x] Docker
-- [ ] The *Input classes shouldn't feel stupid to use
-- [ ] Settings API
-- [ ] On system presets
-- [ ] Generalised joystick support
-- [ ] Slick web interface
-- [ ] Proper error handling
-
+## Visca Command Implementation
+- [ ] PanTiltDrive
+  - [x] set
+  - [ ] get
+- [x] Zoom
+  - [x] set
+  - [x] get
+- [x] Presets
+  - [x] get
+  - [x] set
+- [ ] Focus
+  - [ ] set
+  - [ ] get
+- [ ] ZoomFocus
+  - [ ] set
+  - [ ] get
+- [ ] WhiteBalance
+  - [ ] set
+  - [ ] get
+- [ ] AutoExposure
+  - [ ] set
+  - [ ] get
+- [ ] ShutterSpeed
+  - [ ] set
+  - [ ] get
+- [x] Iris
+  - [x] set
+  - [x] get
+- [ ] Gain
+  - [ ] set
+  - [ ] get
+- [ ] Brightness
+  - [ ] set
+  - [ ] get
+- [ ] ExposureCompensation
+  - [ ] set
+  - [ ] get
+- [x] Menu
+  - [x] set
+  - [x] get
 
 ## Joystick Mapping
 
