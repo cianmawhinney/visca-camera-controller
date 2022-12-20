@@ -1,11 +1,20 @@
 {
-    "extends": "strongloop",
+    "root": true,
+    "extends": [
+        "eslint:recommended",
+        "plugin:jsdoc/recommended"
+    ],
     "parserOptions": {
         "ecmaVersion": 2017
     },
     "env": {
+        "browser": true,
+        "node": true,
         "es6": true
     },
+    "plugins": [
+        "jsdoc"
+    ],
 
     // TODO: Remove once rewrite of web interface is done
     "ignorePatterns": "src/inputs/web"
