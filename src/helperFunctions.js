@@ -2,7 +2,9 @@
 
 /**
  * Returns a hex encoded string which is always an even length
+ * 
  * @param {number} value Value to convert to a padded hex string
+ * @returns {string} Hex encoded string
  */
 function toHex(value) {
   let hexString = value.toString(16);
@@ -15,7 +17,9 @@ function toHex(value) {
 /**
  * Removes any whitespace and returns a Buffer object with the contents of the
  * hex string
+ * 
  * @param {string} hexString Hex encoded string
+ * @returns {Buffer} The buffer created with the contents of the hex encoded string
  */
 function createBufferFromString(hexString) {
   // convert to lowercase and remove whitespace
@@ -27,7 +31,9 @@ function createBufferFromString(hexString) {
 /**
  * Returns a numerical value from a string padded with 0s in evenly indexed
  * positions
+ * 
  * @param {string} string Padded value in form 0p0q0r0s
+ * @returns {number} The number parsed from the string
  */
 function parseValueFromPaddedHexString(string) {
   let map = Array.prototype.map;
@@ -38,9 +44,11 @@ function parseValueFromPaddedHexString(string) {
 
 /**
  * Constrains a number to be within a range
- * @param {number} value Value to be constrained between `low` and `high`
+ * 
+ * @param {number} value Value to be constrained
  * @param {number} low Minumum acceptable value
  * @param {number} high Maximum acceptable value
+ * @returns {number} `value`, constrained between `low` and `high`
  */
 function constrain(value, low, high) {
   return Math.min(Math.max(value, low), high);

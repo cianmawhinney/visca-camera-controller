@@ -32,7 +32,7 @@ const Queue = require('queue');
 
 class RequestQueue {
   /**
-   * @constructor
+   * @class
    * @param {object} options For full options, see https://git.io/JUOUH
    * @param {number} options.concurrency Number of commands a camera can work on
    */
@@ -50,7 +50,8 @@ class RequestQueue {
 
   /**
    * Schedules a command to be send to a camera
-   * @param {function} job The function which sends the command to a camera
+   * 
+   * @param {Function} job The function which sends the command to a camera
    * @param {string} job.commandCategory The category of command to be sent
    */
   async addJob(job) {
@@ -81,9 +82,10 @@ class RequestQueue {
 
   /**
    * Called when a job is finished, and resolves the promise wrapping that job
+   * 
    * @private
    * @param {*} result The return value from the job
-   * @param {function} job The job that was has completed
+   * @param {Function} job The job that was has completed
    */
   onJobComplete(result, job) {
     const { resolve } = this.jobResolveRejectMap.get(job);
@@ -93,6 +95,7 @@ class RequestQueue {
 
   /**
    * Called when a job fails, and rejects the promise wrapping that job
+   * 
    * @private
    * @param {*} error The error from the job
    * @param {*} job The job that has failed

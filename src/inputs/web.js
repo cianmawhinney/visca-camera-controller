@@ -19,7 +19,7 @@ class WebInput {
   }
 
   listen() {
-    app.ws('/', (ws, req) => {
+    app.ws('/', (ws) => {
       ws.on('message', async msg => {
         let data = JSON.parse(msg);
         let camera = this.cameras.find(({id}) =>
@@ -28,35 +28,38 @@ class WebInput {
         if (camera === undefined) {
           ws.send('error: invalid camera requested');
           return;
-        };
+        }
 
         let action = data.action;
         let argArray = [];
 
         // TODO: properly sanitize inputs
         switch (action.type.toLowerCase()) {
-          case 'move':
+          case 'move': {
             let panSpeed = action.parameters.panSpeed || 0;
             let tiltSpeed = action.parameters.tiltSpeed || 0;
             argArray = [panSpeed, tiltSpeed];
             break;
-
-          case 'zoom':
+          }
+          
+          case 'zoom': {
             let zoomSpeed = action.parameters.zoomSpeed || 0;
             argArray = [zoomSpeed];
             break;
+          }
 
-          case 'preset':
+          case 'preset': {
             let presetNumber = action.parameters.presetNumber || 0;
             let presetFunction = action.parameters.function || 'recall';
             argArray = [presetNumber, presetFunction];
             break;
+          }
 
           default:
             console.log('error: invalid function');
             break;
 
-        };
+        }
 
         if (typeof camera[action.type] === 'function') {
           await camera[action.type].apply(camera, argArray)

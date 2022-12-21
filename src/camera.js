@@ -10,71 +10,80 @@ const net = require('net');
 class ViscaCamera {
 
   /**
-   * @constant {number} PAN_MAX_SPEED Maximum visca pan speed
+   * @constant
+   * @returns {number} PAN_MAX_SPEED Maximum visca pan speed
    */
   static get PAN_MAX_SPEED() {
     return 24;
-  };
+  }
 
   /**
-   * @constant {number} TILT_MAX_SPEED Maximum visca tilt speed
+   * @constant
+   * @returns {number} TILT_MAX_SPEED Maximum visca tilt speed
    */
   static get TILT_MAX_SPEED() {
     return 20;
   }
 
   /**
-   * @constant {number} ZOOM_MAX_SPEED Maximum visca zoom speed
+   * @constant
+   * @returns {number} ZOOM_MAX_SPEED Maximum visca zoom speed
    */
   static get ZOOM_MAX_SPEED() {
     return 7;
   }
 
   /**
-   * @constant {number} ZOOM_MAX_POSITION Furthest zoom position of camera
+   * @constant
+   * @returns {number} ZOOM_MAX_POSITION Furthest zoom position of camera
    */
   static get ZOOM_MAX_POSITION() {
     return 16384;
   }
 
   /**
-   * @constant {number} ZOOM_MIN_POSITION Widest zoom position of camera
+   * @constant
+   * @returns {number} ZOOM_MIN_POSITION Widest zoom position of camera
    */
   static get ZOOM_MIN_POSITION() {
     return 0;
   }
 
   /**
-   * @constant {number} OCP_MAX_ID On camera preset maximum ID
+   * @constant
+   * @returns {number} OCP_MAX_ID On camera preset maximum ID
    */
   static get OCP_MAX_ID() {
     return 15;
   }
 
   /**
-   * @constant {number} OCP_MIN_ID On camera preset minimum ID
+   * @constant
+   * @returns {number} OCP_MIN_ID On camera preset minimum ID
    */
   static get OCP_MIN_ID() {
     return 0;
   }
 
   /**
-   * @constant {number} IRIS_MAX_POSITION Widest iris position of camera
+   * @constant
+   * @returns {number} IRIS_MAX_POSITION Widest iris position of camera
    */
   static get IRIS_MAX_POSITION() {
     return 17;
   }
 
   /**
-   * @constant {number} IRIS_MIN_POSITION Narrowest iris position of camera
+   * @constant
+   * @returns {number} IRIS_MIN_POSITION Narrowest iris position of camera
    */
   static get IRIS_MIN_POSITION() {
     return 0;
   }
 
   /**
-   * @constructor
-   * @param {object} options
+   * @class
+   * @param {object} options Options obhect
    * @param {number} options.viscaAddress VISCA address of camera
    * @param {number} [options.id] Unique identifier for this camera
    * @param {string} [options.friendlyName] A memorable name for the camera
@@ -138,7 +147,9 @@ class ViscaCamera {
   }
 
   /**
-   * Returns a string representation of this current camera
+   * Returns a string representation of the camera
+   * 
+   * @returns {string} String representation of the camera
    */
   toString() {
     let identifier;
@@ -176,7 +187,8 @@ class ViscaCamera {
     */
 
   /**
-   * Pans and/or tilts the camera
+   * Pans and/or tilts the camera with the given speeds
+   * 
    * @param {number} panSpeed must be an integer between +/- 24
    * @param {number} tiltSpeed must be an integer between +/- 20
    */
@@ -256,6 +268,7 @@ class ViscaCamera {
 
   /**
    * Zooms the camera in or out
+   * 
    * @param {number} zoomSpeed must be an integer between +/- 7
    */
   async zoom(zoomSpeed) {
@@ -286,6 +299,7 @@ class ViscaCamera {
 
   /**
    * Zooms directly to the specified position
+   * 
    * @param {number} zoomPosition An integer between 0 (wide) and 16384 (tele)
    */
   async setZoomPosition(zoomPosition) {
@@ -326,6 +340,7 @@ class ViscaCamera {
       let strValue = response.toString('hex').substring(4, 12);
       return helpers.parseValueFromPaddedHexString(strValue);
     } catch (e) {
+      console.warn(e);
       throw e;
     }
   }
@@ -397,6 +412,7 @@ class ViscaCamera {
 
   /**
    * Sets the iris position to the specified position
+   * 
    * @param {number} position An integer between 0 and 17
    */
   async setIrisPosition(position) {
@@ -435,6 +451,7 @@ class ViscaCamera {
       let strValue = response.toString('hex').substring(8, 12);
       return helpers.parseValueFromPaddedHexString(strValue);
     } catch (e) {
+      console.warn(e);
       throw e;
     }
   }
@@ -466,6 +483,7 @@ class ViscaCamera {
 
   /**
    * Performs an action relating to the specified on camera preset
+   * 
    * @param {number} presetID must be an integer between 0 and 15
    * @param {PresetActions} action Operation to be carried out
    */
@@ -498,6 +516,7 @@ class ViscaCamera {
 
   /**
    * Sets the specified on camera preset
+   * 
    * @param {number} presetID must be an integer between 0 and 15
    */
   async setOnCameraPreset(presetID) {
@@ -506,6 +525,7 @@ class ViscaCamera {
 
   /**
    * Recalls the specified on camera preset
+   * 
    * @param {number} presetID must be an integer between 0 and 15
    */
   async recallOnCameraPreset(presetID) {
@@ -514,6 +534,7 @@ class ViscaCamera {
 
   /**
    * Clears the specified on camera preset
+   * 
    * @param {number} presetID must be an integer between 0 and 15
    */
   async clearOnCameraPreset(presetID) {
@@ -524,6 +545,7 @@ class ViscaCamera {
    * Performs an action relating to a preset position.
    * Extends the functionality of {@link onCameraPreset} by moving the camera
    * directly to stored positions to act as presets
+   * 
    * @param {number} presetID must be an integer between 0 and 15
    * @param {PresetActions} action Operation to be carried out to the preset
    * @todo Implement function and stored presets
@@ -534,7 +556,6 @@ class ViscaCamera {
     if (aboveMin && belowMax) {
       return await this.onCameraPreset(presetID, action);
     } else {
-      // TODO: implement system presets
       // return await this.systemPreset();
     }
   }
@@ -563,6 +584,7 @@ class ViscaCamera {
 
   /**
    * Performs an action relating to the navigation of the OSD menu
+   * 
    * @param {MenuActions} action Operation to be carried out to the menu
    */
   async menu(action) {
@@ -593,6 +615,7 @@ class ViscaCamera {
       isMenuShowing = await this.isMenuShowing();
     } catch (error) {
       // rethrow to have error handled by input method
+      console.warn(error);
       throw error;
     }
     if (!isMenuShowing) {
@@ -606,7 +629,8 @@ class ViscaCamera {
 
   /**
    * Queries the camera for whether the OSD menu is showing
-   * @returns {boolean}
+   * 
+   * @returns {boolean} True if menu is showing
    */
   async isMenuShowing() {
     let command = util.format('8%s 09 06 06 FF', this.viscaAddress);
@@ -624,6 +648,7 @@ class ViscaCamera {
 
   /**
    * Properly schedules and sends a command to the camera
+   * 
    * @param {Buffer} payload Command to send to the camera
    * @param {string} commandCategory Identifier of what type of command is to be
    * sent
@@ -636,6 +661,7 @@ class ViscaCamera {
 
   /**
    * Internal method to send commands to the camera
+   * 
    * @param {Buffer} payload binary payload to be sent to the camera
    * @private
    */
@@ -689,8 +715,10 @@ class ViscaCamera {
 
   /**
    * Returns true if buffer is a visca reply from a camera
-   * @param {Buffer} buffer Buffer to test
+   * 
    * @static
+   * @param {Buffer} buffer Buffer to test
+   * @returns {boolean} is reply from camera
    */
   static isReplyFromCamera(buffer) {
     let message = buffer.toString('hex');
@@ -702,8 +730,10 @@ class ViscaCamera {
 
   /**
    * Returns true if buffer is a visca error message from a camera
-   * @param {Buffer} buffer Visca reply from camera
+   * 
    * @static
+   * @param {Buffer} buffer Visca reply from camera
+   * @returns {boolean} is error message from camera
    */
   static isErrorMessage(buffer) {
     let message = buffer.toString('hex');
@@ -715,8 +745,10 @@ class ViscaCamera {
 
   /**
    * Returns the meaning of a visca error message
-   * @param {Buffer} buffer Visca reply from camera
+   * 
    * @static
+   * @param {Buffer} buffer Visca reply from camera
+   * @returns {string} Meaning of an error message
    */
   static interpretErrorMessage(buffer) {
     let message = buffer.toString('hex');
