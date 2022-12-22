@@ -17,7 +17,7 @@
     "express": "^4.18.2",
     "express-ws": "^4.0.0",
     "joystick": "git+https://github.com/JayBeavers/node-joystick.git",
-    "liquidjs": "^9.12.0",
+    "liquidjs": "^10.0.0",
     "minimist": "^1.2.6",
     "queue": "^6.0.1",
     "serialport": "^9.0.0"
