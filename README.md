@@ -3,9 +3,9 @@
 Disclaimer: This project is unfinished and not suitable for a production environment just yet.
 
 ## Visca Command Implementation
-- [ ] PanTiltDrive
+- [x] PanTiltDrive
   - [x] set
-  - [ ] get
+  - [x] get
 - [x] Zoom
   - [x] set
   - [x] get

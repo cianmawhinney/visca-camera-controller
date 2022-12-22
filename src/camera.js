@@ -83,7 +83,7 @@ class ViscaCamera {
 
   /**
    * @class
-   * @param {object} options Options obhect
+   * @param {object} options Options object
    * @param {number} options.viscaAddress VISCA address of camera
    * @param {number} [options.id] Unique identifier for this camera
    * @param {string} [options.friendlyName] A memorable name for the camera
@@ -237,6 +237,105 @@ class ViscaCamera {
     return await this.send(payload, 'move');
   }
 
+  /*
+    Absolute Position VISCA Reference
+    =================================
+
+    | Function                  | VISCA Control Command                           |
+    | ------------------------- | ----------------------------------------------- |
+    | Move to absolute position | 8x 01 06 02 VV 00 0p 0p 0p 0p 0p 0t 0t 0t 0t FF |
+
+    Where:
+    * x is the camera visca address (0x0 - 0x7)
+    * VV is the speed from 01-24 in hexadecimal (0x01 - 0x18)
+    * ppppp is the pan position 
+    * tttt
+    
+    
+    | Inquiry           | VISCA Inquiry Command | Reply Packet                        | Notes |
+    | ----------------- | --------------------- | ----------------------------------- | ----- |
+    | Pan/Tilt Position | 8x 09 06 12 FF        | y0 50 0p 0p 0p 0p 0p 0t 0t 0t 0t FF |       |
+
+    Where:
+    * x is the camera visca address (0x0 - 0x7)
+    * y is the camera visca address + 8 (0x9 - 0xF)
+    * ppppp is the pan position (0x0000 - 0x4000)
+  */
+
+  /**
+   * Move the camera to an absolute position. Angles are in degrees and should
+   * be within the range of the camera's limits.
+   * 
+   * @param {number} panAngle The pan angle the camera should be moved to
+   * @param {number} tiltAngle The tilt angle the camera should be moved to
+   * @param {number} speed The speed the camera should move to the new position at ()
+   */
+  async setPanTiltPosition(panAngle, tiltAngle, speed) {
+    let panAngleConstrained = helpers.constrain(
+      panAngle,
+      this.MIN_PAN_ANGLE,
+      this.MAX_PAN_ANGLE,
+    );
+    let tiltAngleConstrained = helpers.constrain(
+      tiltAngle,
+      this.MIN_TILT_ANGLE,
+      this.MAX_TILT_ANGLE,
+    );
+
+    // FIXME: is this approach always going to generate buffers of the correct length? Sadly I think not :(
+    let panPosition = Math.round(panAngleConstrained * this.panMultiplier)
+    let panPositionHex = helpers.toHex(panPosition); 
+    let tiltPosition = Math.round(tiltAngleConstrained * this.tiltMultiplier)
+    let tiltPositionHex = helpers.toHex(tiltPosition); 
+    let command = util.format('8%s 01 06 02 VV 00 0%s 0%s 0%s 0%s 0%s 0%s 0%s 0%s 0%s FF',
+      this.viscaAddress,
+      speed,
+      panPositionHex[0],
+      panPositionHex[1],
+      panPositionHex[2],
+      panPositionHex[3],
+      panPositionHex[4],
+      tiltPositionHex[0],
+      tiltPositionHex[1],
+      tiltPositionHex[2],
+      tiltPositionHex[3],
+    );
+
+    let payload = helpers.createBufferFromString(command);
+    return await this.send(payload);
+  }
+
+  /**
+   * @typedef {object} PositionObject
+   * @property {number} panAngleAbsolute The decimal value of the camera's 
+   * @property {number} panAngleNormalised The position object
+   * @property {number} tiltValue The position object
+   * @property {number} tiltValueNormalised The position object
+   */
+
+  /**
+   * Gets the camera's current pan and tilt position
+   * 
+   * @returns {PositionObject} The position object
+   */
+  async getPanTiltPosition() {
+    let command = util.format('8%s 09 06 12 FF',
+      this.viscaAddress,
+    );
+
+    let payload = helpers.toHex(command);
+    try {
+      // return packet: y0 50 0p 0p 0p 0p 0p 0t 0t 0t 0t FF
+      let response = await this.send(payload);
+
+      // extract padded value from return packet
+      let strValue = response.toString('hex').substring(4, 12);
+      return helpers.parseValueFromPaddedHexString(strValue);
+    } catch (e) {
+      console.warn(e);
+      throw e
+    }
+  }
 
   /*
 
@@ -303,14 +402,14 @@ class ViscaCamera {
    * @param {number} zoomPosition An integer between 0 (wide) and 16384 (tele)
    */
   async setZoomPosition(zoomPosition) {
-    let aboveMin = zoomPosition >= ViscaCamera.IRIS_MIN_POSITION;
-    let belowMax = zoomPosition <= ViscaCamera.IRIS_MAX_POSITION;
+    let aboveMin = zoomPosition >= ViscaCamera.ZOOM_MIN_POSITION;
+    let belowMax = zoomPosition <= ViscaCamera.ZOOM_MAX_POSITION;
     assert(aboveMin && belowMax,
       `The position must be between ${ViscaCamera.ZOOM_MIN_POSITION}
       and ${ViscaCamera.ZOOM_MAX_POSITION}`);
 
     let hexPosition = helpers.toHex(zoomPosition);
-    let command = util.format('8%s 01 04 47 0p 0q 0r 0s FF',
+    let command = util.format('8%s 01 04 47 0%s 0%s 0%s 0%s FF',
       this.viscaAddress,
       hexPosition[0],
       hexPosition[1],
