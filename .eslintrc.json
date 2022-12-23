@@ -2,7 +2,9 @@
     "root": true,
     "extends": [
         "eslint:recommended",
-        "plugin:jsdoc/recommended"
+        "plugin:jsdoc/recommended",
+        "plugin:jest/recommended",
+        "plugin:jest/style"
     ],
     "parserOptions": {
         "ecmaVersion": 2017
@@ -13,7 +15,8 @@
         "es6": true
     },
     "plugins": [
-        "jsdoc"
+        "jsdoc",
+        "jest"
     ],
 
     // TODO: Remove once rewrite of web interface is done

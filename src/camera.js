@@ -140,7 +140,7 @@ class ViscaCamera {
     } else {
       assert(options.connection instanceof stream.Duplex,
         'options.connection must be of type stream.Duplex');
-      this.connection = options.connection();
+      this.connection = options.connection;
     }
 
     this.queue = new RequestQueue();
