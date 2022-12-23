@@ -4,9 +4,6 @@ const path = require('path');
 const express = require('express');
 const app = express();
 
-const { Liquid } = require('liquidjs');
-const engine = new Liquid();
-
 // add ws method to app
 require('express-ws')(app);
 
@@ -70,8 +67,6 @@ class WebInput {
         }
       });
     });
-
-    app.engine('liquid', engine.express());
 
     app.use(express.static(path.join(__dirname + '/web')));
 
