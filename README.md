@@ -1,6 +1,6 @@
 # VISCA Camera Controller
 
-Disclaimer: This project is unfinished and not suitable for a production environment just yet.
+Disclaimer: This project isn't finished just yet, and may not be suitable for your environment.
 
 ## Visca Command Implementation
 - [x] PanTiltDrive
