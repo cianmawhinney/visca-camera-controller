@@ -44,7 +44,7 @@ var cameraSelectors = document.getElementsByClassName('camera-selector');
 
 for (var i = 0; i < cameraSelectors.length; i++) {
   cameraSelectors[i].addEventListener('click', function(eventData) {
-    currentCamera = eventData.toElement.value;
+    currentCamera = eventData.target.value;
   });
 }
 // TODO: when a camera is selected, update the currently shown presets
@@ -169,7 +169,7 @@ preset, edit the position, or delete it (the data and the name)
 var presetButtons = document.getElementsByClassName('presets-button');
 for (let i = 0; i < presetButtons.length; i++) {
   presetButtons[i].addEventListener('click', function(eventData) {
-    var presetID = eventData.toElement.dataset.presetId;
+    var presetID = eventData.target.dataset.presetId;
 
     // TODO: find a better name for variable x
     var x = {
