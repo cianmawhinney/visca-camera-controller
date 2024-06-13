@@ -16,6 +16,8 @@ services:
       # I'm pretty certain this is insecure, so you can try just passing
       # individual devices, though I'm not sure if hotplugging works this way
       - /dev:/dev
+    
+    privileged: true
 
 volumes:
   config:

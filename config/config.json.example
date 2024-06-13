@@ -1,0 +1,42 @@
+{
+    "webserver_port": 3000,
+    "joystick_id": 0,
+    "cameras": [
+        {
+            "id": 1,
+            "friendly_name": "Gallery Left",
+            "visca_address": 1,
+            "connection": {
+                "type": "",
+                "parameters": {
+                    "host": "10.10.10.22",
+                    "port": 5678
+                }
+            }
+        },
+        {
+            "id": 2,
+            "friendly_name": "Gallery Center",
+            "visca_address": 1,
+            "connection": {
+                "type": "",
+                "parameters": {
+                    "host": "10.10.10.20",
+                    "port": 5678
+                }
+            }
+        },
+        {
+            "id": 3,
+            "friendly_name": "Front Right",
+            "visca_address": 1,
+            "connection": {
+                "type": "",
+                "parameters": {
+                    "host": "10.10.10.21",
+                    "port": 5678
+                }
+            }
+        }
+    ]
+}
