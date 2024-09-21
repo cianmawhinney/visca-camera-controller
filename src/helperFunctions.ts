@@ -1,12 +1,10 @@
-'use strict';
-
 /**
  * Returns a hex encoded string which is always an even length
  * 
  * @param {number} value Value to convert to a padded hex string
  * @returns {string} Hex encoded string
  */
-function toHex(value) {
+export function toHex(value: number) {
   let hexString = value.toString(16);
   if ((hexString.length % 2) !== 0) {
     hexString = '0' + hexString;
@@ -21,11 +19,11 @@ function toHex(value) {
  * @param {string} hexString Hex encoded string
  * @returns {Buffer} The buffer created with the contents of the hex encoded string
  */
-function createBufferFromString(hexString) {
+export function createBufferFromString(hexString: string) {
   // convert to lowercase and remove whitespace
   let stringCommand = hexString.toLowerCase().replace(/\s/g, '');
   // eslint-disable-next-line new-cap
-  return new Buffer.from(stringCommand, 'hex');
+  return Buffer.from(stringCommand, 'hex');
 }
 
 /**
@@ -35,7 +33,7 @@ function createBufferFromString(hexString) {
  * @param {string} string Padded value in form 0p0q0r0s
  * @returns {number} The number parsed from the string
  */
-function parseValueFromPaddedHexString(string) {
+export function parseValueFromPaddedHexString(string: string) {
   let map = Array.prototype.map;
   // grab every other 'character' (ie. 0p 0q 0r 0s becomes pqrs)
   let value = map.call(string, (char, i) => (i % 2) ? char : '').join('');
@@ -50,13 +48,6 @@ function parseValueFromPaddedHexString(string) {
  * @param {number} high Maximum acceptable value
  * @returns {number} `value`, constrained between `low` and `high`
  */
-function constrain(value, low, high) {
+export function constrain(value: number, low: number, high: number) {
   return Math.min(Math.max(value, low), high);
 }
-
-module.exports = {
-  toHex,
-  createBufferFromString,
-  parseValueFromPaddedHexString,
-  constrain,
-};
