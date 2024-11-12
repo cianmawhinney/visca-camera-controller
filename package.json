@@ -15,7 +15,7 @@
     "@serialport/parser-delimiter": "^9.0.0",
     "convict": "^6.2.4",
     "convict-format-with-validator": "^6.0.0",
-    "express": "^4.20.0",
+    "express": "^4.21.1",
     "express-ws": "^4.0.0",
     "joystick": "git+https://github.com/JayBeavers/node-joystick.git",
     "minimist": "^1.2.6",
